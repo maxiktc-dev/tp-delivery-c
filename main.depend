@@ -1,0 +1,31 @@
+# depslib dependency file v1.0
+1781816887 source:c:\users\aldo\desktop\rappi-ya\main\main.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"crud.h"
+	"filemanager.h"
+	"estructuras.h"
+
+1781817182 source:c:\users\aldo\desktop\rappi-ya\main\filemanager.c
+	<stdio.h>
+	"filemanager.h"
+	<string.h>
+	"crud.h"
+	"estructuras.h"
+
+1781817197 c:\users\aldo\desktop\rappi-ya\main\crud.h
+	"estructuras.h"
+
+1781817182 c:\users\aldo\desktop\rappi-ya\main\filemanager.h
+
+1781816307 c:\users\aldo\desktop\rappi-ya\main\estructuras.h
+
+1781817356 source:c:\users\aldo\desktop\rappi-ya\main\crud.c
+	<stdio.h>
+	<string.h>
+	"crud.h"
+	<stdio.h>
+	<string.h>
+	"crud.h"
+

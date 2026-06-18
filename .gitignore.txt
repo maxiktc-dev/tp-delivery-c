@@ -1,0 +1,7 @@
+# Ignorar basura de Code::Blocks
+*.o
+*.exe
+*.layout
+*.depend
+bin/
+obj/
