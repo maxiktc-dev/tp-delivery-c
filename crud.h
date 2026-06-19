@@ -3,12 +3,23 @@
 
 #include "estructuras.h"
 
+//--- ABM RESTAURANTES ---
+void pantallaAltaRestaurante();
+
+void pantallaModificacionRestaurante();
+
+void pantallaBajaRestaurante();
 
 void listarRestaurantesDebug();
+
 int guardarRestaurante(Restaurante r);
+
 int buscarRestaurantePorID(int id);
+
 int modificarRestaurante(int id, char nuevoNombre[], char nuevaDescripcion[]);
+
 int bajaRestaurante(int id);
+
 void gestionRestaurantes();
 
 //--- ABM DE CLIENTES ---
@@ -41,6 +52,7 @@ int validarCliente(Cliente u);
 int idDisponible(int id);
 
 void listarClientesDebug();
+
 //--- ABM DE PEDIDOS ---
 
 int altaPedido(PedidoCliente nuevoPedido, ProductosPedido detalles[], int cantidadProductos);
