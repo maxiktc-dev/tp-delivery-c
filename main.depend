@@ -36,7 +36,7 @@
 	<stdio.h>
 	<stdlib.h>
 
-1781845836 source:c:\users\maxi\desktop\rappi-ya\main\crud.c
+1781847721 source:c:\users\maxi\desktop\rappi-ya\main\crud.c
 	<stdio.h>
 	<string.h>
 	<ctype.h>
@@ -44,12 +44,12 @@
 	"crud.h"
 	"filemanager.h"
 
-1781845659 c:\users\maxi\desktop\rappi-ya\main\crud.h
+1781849075 c:\users\maxi\desktop\rappi-ya\main\crud.h
 	"estructuras.h"
 
 1781842205 c:\users\maxi\desktop\rappi-ya\main\estructuras.h
 
-1781845659 source:c:\users\maxi\desktop\rappi-ya\main\main.c
+1781846573 source:c:\users\maxi\desktop\rappi-ya\main\main.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>

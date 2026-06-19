@@ -9,70 +9,158 @@
 // --- ABM Y LÓGICA DE PLATOS (PRODUCTOS) ---
 // ==========================================
 
-void menuAltaProducto(int id_rest)
-{
+int checkEstadoProductoGlobal(int id_restaurante, int id_producto) {
+    FILE *f = abrirArchivo("productos.dat", "rb");
+    if(f == NULL) return 0;
+
+    Producto aux;
+    while(leerRegistro(f, &aux, sizeof(Producto))) {
+        if(aux.id_usuario_restaurante == id_restaurante && aux.id_producto == id_producto) {
+            fclose(f);
+            return aux.activo == 1 ? 1 : 2;
+        }
+    }
+    fclose(f);
+    return 0; // El ID está libre
+}
+
+int reactivarProductoSimple(int id_restaurante, int id_producto) {
+    FILE *f = abrirArchivo("productos.dat", "rb+");
+    if(f == NULL) return 0;
+
+    Producto aux;
+    int reactivado = 0;
+
+    while(leerRegistro(f, &aux, sizeof(Producto))) {
+        if(aux.id_usuario_restaurante == id_restaurante && aux.id_producto == id_producto && aux.activo == 0) {
+            aux.activo = 1; // Lo revivimos
+            aux.estado = 1; // Lo volvemos a poner "Disponible"
+
+            fseek(f, -(long)sizeof(Producto), SEEK_CUR);
+            reactivado = escribirRegistro(f, &aux, sizeof(Producto));
+            break;
+        }
+    }
+    fclose(f);
+    return reactivado;
+}
+
+int reactivarYModificarProducto(Producto p) {
+    FILE *f = abrirArchivo("productos.dat", "rb+");
+    if(f == NULL) return 0;
+
+    Producto aux;
+    int exito = 0;
+    while(leerRegistro(f, &aux, sizeof(Producto))) {
+        if(aux.id_usuario_restaurante == p.id_usuario_restaurante && aux.id_producto == p.id_producto) {
+            fseek(f, -sizeof(Producto), SEEK_CUR);
+            exito = escribirRegistro(f, &p, sizeof(Producto));
+            break;
+        }
+    }
+    fclose(f);
+    return exito;
+}
+
+void menuReactivarProducto(int id_rest) {
+    int auxENTERO = 0;
+
+    printf("\n--- REACTIVAR PLATO ---\n");
+    printf("Ingrese el ID del plato a reactivar: ");
+    scanf("%d", &auxENTERO);
+    getchar();
+
+    int estado = checkEstadoProductoGlobal(id_rest, auxENTERO);
+
+    if(estado == 0) {
+        printf("Error: Ese ID nunca fue registrado en este restaurante.\n");
+    } else if(estado == 1) {
+        printf("Aviso: Ese plato ya se encuentra ACTIVO.\n");
+    } else {
+        // estado == 2 (Significa que está dado de baja)
+        if(reactivarProductoSimple(id_rest, auxENTERO) == 1) {
+            printf("¡Plato reactivado con exito! Ya vuelve a figurar en el menu.\n");
+        } else {
+            printf("Error al intentar reactivar el plato.\n");
+        }
+    }
+}
+
+void menuAltaProducto(int id_rest) {
     Producto p;
     int auxENTERO = 0;
     char auxCARACTER[150];
     float auxFLOAT = 0.0;
     int invalido = 0;
+    int estado_id = 0;
+    int es_reactivacion = 0;
 
     printf("\n--- ALTA DE PLATO ---\n");
-    do
-    {
+    do {
         printf("ID del nuevo Plato: ");
         scanf("%d", &auxENTERO);
         getchar();
-        invalido = buscarProductoPorID(id_rest, auxENTERO) == 1;
-        if(invalido) puts("Ese ID de plato ya existe en este restaurante!");
-    }
-    while(invalido);
+
+        estado_id = checkEstadoProductoGlobal(id_rest, auxENTERO);
+
+        if(estado_id == 1) {
+            puts("Ese ID de plato ya existe y esta ACTIVO. Ingrese otro.");
+            invalido = 1;
+        } else if(estado_id == 2) {
+            printf("-> Aviso: Ese ID estaba dado de BAJA. Se reactivara con los nuevos datos.\n");
+            es_reactivacion = 1;
+            invalido = 0; // Lo dejamos pasar porque lo vamos a revivir
+        } else {
+            es_reactivacion = 0;
+            invalido = 0; // Lo dejamos pasar porque es un ID nuevo
+        }
+    } while(invalido);
 
     p.id_producto = auxENTERO;
     p.id_usuario_restaurante = id_rest;
 
-    do
-    {
+    do {
         printf("Nombre del Plato: ");
         fgets(auxCARACTER, sizeof(auxCARACTER), stdin);
         auxCARACTER[strcspn(auxCARACTER, "\n")] = '\0';
         invalido = validarNombre(auxCARACTER) == 0;
         if(invalido) puts("Nombre invalido, intente de nuevo");
-    }
-    while(invalido);
+    } while(invalido);
     strcpy(p.nombre, auxCARACTER);
 
-    do
-    {
+    do {
         printf("Descripcion del Plato: ");
         fgets(p.descripcion, sizeof(p.descripcion), stdin);
         p.descripcion[strcspn(p.descripcion, "\n")] = '\0';
         invalido = strlen(p.descripcion) == 0;
         if(invalido) puts("Debe llenar la descripcion");
-    }
-    while(invalido);
+    } while(invalido);
 
-    do
-    {
+    do {
         printf("Precio: ");
         scanf("%f", &auxFLOAT);
         getchar();
         invalido = (auxFLOAT <= 0);
         if(invalido) puts("El precio debe ser mayor a 0");
-    }
-    while(invalido);
+    } while(invalido);
     p.precio = auxFLOAT;
 
     p.estado = 1; // Disponible
-    p.activo = 1; // Activo
+    p.activo = 1; // Alta lógica (o Reactivación)
 
-    if(guardarProducto(p) == 1)
-    {
-        printf("¡Plato guardado exitosamente en el menu!\n");
-    }
-    else
-    {
-        printf("Error: No se pudo guardar el plato.\n");
+    // Decidimos cómo guardarlo en base a lo que detectamos al principio
+    if(es_reactivacion) {
+        if(reactivarYModificarProducto(p) == 1) {
+            printf("¡Plato reactivado y actualizado exitosamente!\n");
+        } else {
+            printf("Error al reactivar el plato.\n");
+        }
+    } else {
+        if(guardarProducto(p) == 1) {
+            printf("¡Plato guardado exitosamente en el menu!\n");
+        } else {
+            printf("Error: No se pudo guardar el plato.\n");
+        }
     }
 }
 
@@ -173,6 +261,7 @@ void gestionPlatos()
         printf("1. Alta de Plato\n");
         printf("2. Modificar Plato\n");
         printf("3. Baja de Plato\n");
+        printf("4. Reactivar Plato\n");
         printf("0. Volver al menu principal\n");
         printf("Opcion ABM: ");
         scanf("%d", &opcABM);
@@ -188,6 +277,9 @@ void gestionPlatos()
             break;
         case 3:
             menuBajaProducto(id_rest);
+            break;
+        case 4:
+            menuReactivarProducto(id_rest);
             break;
         case 0:
             printf("Volviendo al menu principal...\n");
@@ -825,6 +917,8 @@ int altaCliente(Cliente nuevo)
     return guardarCliente(nuevo);
 }
 
+
+
 // --- 3. GESTIÓN DE PEDIDOS ---
 
 int altaPedido(PedidoCliente nuevoPedido, ProductosPedido detalles[], int cantidadProductos)
@@ -942,9 +1036,16 @@ void pantallaAltaPedido()
     scanf("%d", &p.id_pedido);
     getchar();
 
-    printf("Fecha (YYYY-MM-DD): ");
-    fgets(p.fecha, sizeof(p.fecha), stdin);
-    p.fecha[strcspn(p.fecha, "\n")] = '\0';
+    do
+    {
+        printf("Fecha (YYYY-MM-DD): ");
+        scanf("%10s", p.fecha);
+        getchar(); // Nos comemos el salto de línea para que no rompa el codigo_envio
+
+        invalido = validarFecha(p.fecha) == 0;
+        if(invalido) puts("Fecha invalida. Debe respetar el formato YYYY-MM-DD y ser una fecha real.");
+    }
+    while(invalido);
 
     printf("Codigo de envio: ");
     fgets(p.codigo_envio, sizeof(p.codigo_envio), stdin);
@@ -1085,27 +1186,131 @@ void pantallaListarPedidosCliente()
     scanf("%d", &id_buscado);
     getchar();
 
-    // Validar si el cliente existe...
     if(buscarClientePorID(id_buscado) == 0)
     {
         printf("Error: El cliente no existe o esta de baja.\n");
         return;
     }
 
-    // Acá tu compañera puede meter el while() que lea pedidos.dat
-    // y filtre los que coincidan con id_buscado.
-    printf("\n[DEBUG] Funcion en construccion. Aca se listaran los pedidos del cliente %d\n", id_buscado);
+    FILE *fPedidos = abrirArchivo("pedidos.dat", "rb");
+    if(fPedidos == NULL)
+    {
+        printf("No hay pedidos registrados aun.\n");
+        return;
+    }
+
+    PedidoCliente aux;
+    int encontrados = 0;
+
+    printf("\n=== HISTORIAL DE PEDIDOS DEL CLIENTE #%d ===\n", id_buscado);
+    while(leerRegistro(fPedidos, &aux, sizeof(PedidoCliente)))
+    {
+        if(aux.id_cliente == id_buscado && aux.activo == 1)
+        {
+            encontrados++;
+            printf("\nTicket #%d | Fecha: %s\n", aux.id_pedido, aux.fecha);
+            printf("ID Resto : %d\n", aux.id_usuario_restaurante);
+            printf("Estado   : ");
+            if(aux.estado == 1) printf("Pendiente\n");
+            else if(aux.estado == 2) printf("En Viaje\n");
+            else if(aux.estado == 3) printf("Entregado\n");
+            else printf("Desconocido\n");
+
+            // Aca lee los detalles del ticket
+
+            FILE *fDet = fopen("detalles_pedido.dat", "rb");
+            if(fDet != NULL)
+            {
+                ProductosPedido det;
+                printf("  Platos pedidos:\n");
+                while(leerRegistro(fDet, &det, sizeof(ProductosPedido)))
+                {
+                    if(det.id_pedido == aux.id_pedido)
+                    {
+                        printf("   - ID Plato: %d | Cantidad: %d\n", det.id_producto, det.cantidad);
+                    }
+                }
+                fclose(fDet);
+            }
+            printf("--------------------------------------\n");
+        }
+    }
+    fclose(fPedidos);
+
+    if(encontrados == 0)
+    {
+        printf("Este cliente no tiene pedidos registrados.\n");
+    }
 }
 
-//--- DEBUG ---
+int validarFecha(char fecha[])
+{
+    // 1. Validar longitud (tiene que ser exactamente 10 caracteres)
+    if(strlen(fecha) != 10) return 0;
+
+    // 2. Validar que tenga los guiones donde corresponde (YYYY-MM-DD)
+    if(fecha[4] != '-' || fecha[7] != '-') return 0;
+
+    // 3. Extraer los números y validar que sean lógicos
+    int anio, mes, dia;
+    // sscanf lee el string y lo separa en variables enteras usando el guion como separador
+    if(sscanf(fecha, "%d-%d-%d", &anio, &mes, &dia) != 3) return 0;
+
+    // Validaciones lógicas básicas
+    if(anio < 2000 || anio > 2100) return 0; // Año razonable
+    if(mes < 1 || mes > 12) return 0;        // Meses del 1 al 12
+    if(dia < 1 || dia > 31) return 0;        // Días del 1 al 31
+
+    return 1; // Si pasó todas las pruebas, la fecha es válida
+}
+
+//--- INFORMES ---
 
 void generarInformesTxt()
 {
     printf("\n--- GENERACION DE INFORMES ---\n");
-    // Acá tu compañera puede armar la lógica de crear el .txt
-    printf("\n[DEBUG] Funcion en construccion. Aca se exportaran los datos a texto.\n");
+
+    FILE *fBin = fopen("clientes.dat", "rb");
+    if(fBin == NULL)
+    {
+        printf("Error: No hay datos de clientes para exportar.\n");
+        return;
+    }
+
+    // Ojo acá: Se abre en "w" (texto plano), no en "wb" ni "ab"
+    FILE *fTxt = fopen("informe_clientes.txt", "w");
+    if(fTxt == NULL)
+    {
+        printf("Error al crear el archivo de texto.\n");
+        fclose(fBin);
+        return;
+    }
+
+    Cliente aux;
+    int cont = 0;
+
+    fprintf(fTxt, "=== INFORME DE CLIENTES ACTIVOS ===\n");
+    fprintf(fTxt, "ID\tNombre\t\t\tEmail\n");
+    fprintf(fTxt, "---------------------------------------------------\n");
+
+    while(leerRegistro(fBin, &aux, sizeof(Cliente)))
+    {
+        if(aux.activo == 1)
+        {
+            // Imprimimos la data en el archivo de texto usando fprintf
+            fprintf(fTxt, "%d\t%-20s\t%s\n", aux.id_cliente, aux.nombre, aux.email);
+            cont++;
+        }
+    }
+
+    fclose(fBin);
+    fclose(fTxt);
+
+    printf("¡Exito! Se genero el archivo 'informe_clientes.txt' con %d clientes.\n", cont);
 }
 
+
+//--- DEBUG ---
 
 void listarClientesDebug()
 {
@@ -1169,11 +1374,11 @@ void listarProductosDebug()
     printf("\n=== DEBUG: TODOS LOS PLATOS (PRODUCTOS) ===\n");
     while (leerRegistro(f, &aux, sizeof(Producto)))
     {
-        printf("ID Plato      : %d\n", aux.id_producto);
-        printf("ID Resto Due%co: %d\n", 164, aux.id_usuario_restaurante);
-        printf("Nombre        : %s\n", aux.nombre);
-        printf("Precio        : $%.2f\n", aux.precio);
-        printf("Estado        : %d\n", aux.activo);
+        printf("ID Plato        : %d\n", aux.id_producto);
+        printf("ID Resto Due%co  : %d\n", 164, aux.id_usuario_restaurante);
+        printf("Nombre          : %s\n", aux.nombre);
+        printf("Precio          : $%.2f\n", aux.precio);
+        printf("Estado          : %d\n", aux.activo);
         printf("---------------------------------------------------\n");
     }
     fclose(f);
@@ -1192,11 +1397,11 @@ void listarPedidosDebug()
     printf("\n=== DEBUG: TODOS LOS PEDIDOS (CABECERAS) ===\n");
     while (leerRegistro(f, &aux, sizeof(PedidoCliente)))
     {
-        printf("ID Pedido     : %d\n", aux.id_pedido);
-        printf("ID Cliente    : %d\n", aux.id_cliente);
-        printf("ID Resto      : %d\n", aux.id_usuario_restaurante);
-        printf("Fecha         : %s\n", aux.fecha);
-        printf("Estado        : %d\n", aux.activo);
+        printf("ID Pedido      : %d\n", aux.id_pedido);
+        printf("ID Cliente     : %d\n", aux.id_cliente);
+        printf("ID Restaurante : %d\n", aux.id_usuario_restaurante);
+        printf("Fecha          : %s\n", aux.fecha);
+        printf("Estado         : %d\n", aux.activo);
         printf("---------------------------------------------------\n");
     }
     fclose(f);

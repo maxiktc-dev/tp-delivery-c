@@ -15,6 +15,9 @@ int guardarProducto(Producto p);
 int modificarProducto(int id_restaurante, int id_producto, char nuevoNombre[], float nuevoPrecio);
 int bajaProducto(int id_restaurante, int id_producto);
 void listarProductosDebug();
+int checkEstadoProductoGlobal(int id_restaurante, int id_producto);
+int reactivarYModificarProducto(Producto p);
+int reactivarProductoSimple(int id_restaurante, int id_producto);
 
 // ==========================================
 // --- 2. ABM DE RESTAURANTES ---
@@ -58,5 +61,14 @@ void pantallaBajaPedido();
 int altaPedido(PedidoCliente nuevoPedido, ProductosPedido detalles[], int cantidadProductos);
 int modificarEstadoPedido(int id_pedido, int nuevoEstado);
 int bajaPedido(int id_pedido);
+void pantallaListarPedidosCliente();
+int validarFecha();
 void listarPedidosDebug();
+
+// ==========================================
+// --- 5. INFORMES ---
+// ==========================================
+
+void generarInformesTxt();
+
 #endif // CRUD_H

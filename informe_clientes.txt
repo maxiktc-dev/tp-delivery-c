@@ -1,0 +1,5 @@
+=== INFORME DE CLIENTES ACTIVOS ===
+ID	Nombre			Email
+---------------------------------------------------
+1	Maximo              	mmaximo737@gmail.com
+67	sixseven            	sixseven@gmail.com
