@@ -3,13 +3,23 @@
 
 #include "estructuras.h"
 
+// --- ABM DE PLATOS (PRODUCTOS) ---
+void gestionPlatos();
+void menuAltaProducto(int id_rest);
+void menuModificarProducto(int id_rest);
+void menuBajaProducto(int id_rest);
+int buscarProductoPorID(int id_restaurante, int id_producto);
+int guardarProducto(Producto p);
+int modificarProducto(int id_restaurante, int id_producto, char nuevoNombre[], float nuevoPrecio);
+int bajaProducto(int id_restaurante, int id_producto);
 
+// --- ABM DE RESTAURANTES ---
+void gestionRestaurantes();
 void listarRestaurantesDebug();
 int guardarRestaurante(Restaurante r);
 int buscarRestaurantePorID(int id);
 int modificarRestaurante(int id, char nuevoNombre[], char nuevaDescripcion[]);
 int bajaRestaurante(int id);
-void gestionRestaurantes();
 
 //--- ABM DE CLIENTES ---
 void gestionClientes();

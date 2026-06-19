@@ -36,11 +36,15 @@ int main()
         switch(opcion)
         {
             case 1:
-                gestionClientes(); // <--- Súper compacto y elegante
+                gestionClientes();
                 break;
 
             case 2:
                 gestionRestaurantes();
+                break;
+
+            case 3:
+                gestionPlatos();
                 break;
 
             case 9:
