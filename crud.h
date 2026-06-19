@@ -4,6 +4,15 @@
 #include "estructuras.h"
 
 //--- ABM DE CLIENTES ---
+void gestionClientes();
+
+int validarNombre(char nombre[]);
+
+int validarEmail(char email[]);
+
+int modificarCliente(int id, char nuevaDireccion[], char nuevaContrasenia[]);
+
+int bajaCliente(int id);
 
 int buscarClientePorID(int id);
 

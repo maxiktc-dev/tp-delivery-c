@@ -8,6 +8,129 @@
 
 // --- 1. ABM Y LÓGICA DE CLIENTES ---
 
+
+void gestionClientes() {
+    int opcABM;
+    Cliente c;
+    int auxENTERO = 0;
+    char auxCARACTER[150];
+    int invalido = 0;
+
+    printf("\n--- ABM CLIENTES ---\n");
+    printf("1. Alta de Cliente\n");
+    printf("2. Modificar Cliente\n");
+    printf("3. Baja de Cliente\n");
+    printf("Opcion ABM: ");
+    scanf("%d", &opcABM);
+    getchar();
+
+    if(opcABM == 1) {
+        printf("\n--- ALTA DE CLIENTE ---\n");
+        do {
+            printf("ID: ");
+            scanf("%d", &auxENTERO);
+            getchar();
+            invalido = buscarClientePorID(auxENTERO) == 1;
+            if(invalido) puts("Ese ID ya existe, ingrese otro!");
+        } while(invalido);
+        c.id_cliente = auxENTERO;
+
+        do {
+            printf("Nombre: ");
+            fgets(auxCARACTER, sizeof(auxCARACTER), stdin);
+            auxCARACTER[strcspn(auxCARACTER, "\n")] = '\0';
+            invalido = validarNombre(auxCARACTER) == 0;
+            if(invalido) puts("Nombre invalido, intente devuelta");
+        } while(invalido);
+        strcpy(c.nombre, auxCARACTER);
+
+        do {
+            printf("Email: ");
+            fgets(auxCARACTER, sizeof(auxCARACTER), stdin);
+            auxCARACTER[strcspn(auxCARACTER, "\n")] = '\0';
+            invalido = validarEmail(auxCARACTER) == 0;
+            if(invalido) puts("El email es invalido, intente denuevo");
+        } while(invalido);
+        strcpy(c.email, auxCARACTER);
+
+        do {
+            printf("Contrase%ca: ", 164);
+            fgets(auxCARACTER, sizeof(auxCARACTER), stdin);
+            auxCARACTER[strcspn(auxCARACTER, "\n")] = '\0';
+            invalido = strlen(auxCARACTER) == 0;
+            if(invalido) puts("Debe llenar el campo");
+        } while(invalido);
+        strcpy(c.contrasenia, auxCARACTER);
+
+        do {
+            printf("Direccion: ");
+            fgets(auxCARACTER, sizeof(auxCARACTER), stdin);
+            auxCARACTER[strcspn(auxCARACTER, "\n")] = '\0';
+            invalido = strlen(auxCARACTER) == 0;
+            if(invalido) puts("Debe llenar el campo");
+        } while(invalido);
+        strcpy(c.direccion, auxCARACTER);
+
+        if(altaCliente(c) == 1) {
+            printf("¡Cliente guardado exitosamente!\n");
+        } else {
+            printf("Error: No se pudo guardar el cliente.\n");
+        }
+    }
+    else if(opcABM == 2) {
+        char nuevaDir[150], nuevaPass[50];
+        printf("\n--- MODIFICAR CLIENTE ---\n");
+        printf("Ingrese el ID del cliente a modificar: ");
+        scanf("%d", &auxENTERO);
+        getchar();
+
+        if(buscarClientePorID(auxENTERO) == 0) {
+            puts("Error: El ID no existe o el cliente esta de baja.");
+        } else {
+            do {
+                printf("Ingrese Nueva Direccion: ");
+                fgets(nuevaDir, sizeof(nuevaDir), stdin);
+                nuevaDir[strcspn(nuevaDir, "\n")] = '\0';
+                invalido = strlen(nuevaDir) == 0;
+                if(invalido) puts("Debe llenar el campo");
+            } while(invalido);
+
+            do {
+                printf("Ingrese Nueva Contrase%ca: ", 164);
+                fgets(nuevaPass, sizeof(nuevaPass), stdin);
+                nuevaPass[strcspn(nuevaPass, "\n")] = '\0';
+                invalido = strlen(nuevaPass) == 0;
+                if(invalido) puts("Debe llenar el campo");
+            } while(invalido);
+
+            if(modificarCliente(auxENTERO, nuevaDir, nuevaPass) == 1) {
+                printf("¡Cliente modificado con exito!\n");
+            } else {
+                printf("Error al intentar modificar.\n");
+            }
+        }
+    }
+    else if(opcABM == 3) {
+        printf("\n--- BAJA DE CLIENTE ---\n");
+        printf("Ingrese el ID del cliente a dar de baja: ");
+        scanf("%d", &auxENTERO);
+        getchar();
+
+        if(buscarClientePorID(auxENTERO) == 0) {
+            puts("Error: El ID no existe o ya esta de baja.");
+        } else {
+            if(bajaCliente(auxENTERO) == 1) {
+                printf("¡Cliente dado de baja exitosamente!\n");
+            } else {
+                printf("Error al intentar dar de baja.\n");
+            }
+        }
+    }
+}
+
+
+
+
 int buscarClientePorID(int id) {
     FILE *f = abrirArchivo("clientes.dat", "rb");
     if(f == NULL) return 0;
@@ -27,6 +150,8 @@ int buscarClientePorID(int id) {
     fclose(f);
     return 0;
 }
+
+
 
 int guardarCliente(Cliente c) {
     FILE *f = abrirArchivo("clientes.dat", "ab");
@@ -77,17 +202,15 @@ int validarNombre(char nombre[]) {
 }
 
 int validarEmail(char email[]) {
-
-//verifica largo mayor a 0 en la string email
+    // 1. Verifica largo mayor a 0
     if(strlen(email) == 0) return 0;
 
-    char *arroba = strchr(email, '@');
-    char *punto = strchr(email, '.');
+    char *arroba = strchr(email, '@');  // Busca el PRIMER arroba
+    char *punto = strrchr(email, '.');   // Busca el ÚLTIMO punto (Cambiado a strrchr)
 
-/*verifica que como minimo tenga un arroba, un punto y
-*que el arroba este antes que el punto
-*/
-    if(arroba != NULL && punto != NULL && arroba < punto) {
+    /* Verifica que existan, que la @ esté antes que el punto,
+       y que no estén pegados (@.) */
+    if(arroba != NULL && punto != NULL && arroba + 1 < punto) {
         return 1;
     }
     return 0;
@@ -114,28 +237,8 @@ int idDisponible(int id) {
     return 1;
 }
 
-int validarCliente(Cliente c) {
-    //verifica que el id del cliente sea mayor a 0, y a su vez que este disponible
-    if(c.id_cliente <= 0 || !idDisponible(c.id_cliente)) return 0;
-
-    if(!validarNombre(c.nombre)) return 0;
-
-    if(!validarEmail(c.email)) return 0;
-
-    // Agregamos seguridad extra para que no vengan campos vacíos
-    if(strlen(c.direccion) == 0) return 0;
-    if(strlen(c.contrasenia) == 0) return 0;
-
-    return 1;
-}
 
 int altaCliente(Cliente nuevo) {
-    if(!validarCliente(nuevo)) {
-        printf("Error: Datos invalidos o el ID ya existe.\n");
-        return 0;
-    }
-
-    //si todo sale bien pasa el estado del cliente a activo y guarda los datos
     nuevo.activo = 1;
     return guardarCliente(nuevo);
 }
@@ -198,4 +301,56 @@ void listarClientesDebug() {
     }
 
     fclose(f);
+}
+
+
+int modificarCliente(int id, char nuevaDireccion[], char nuevaContrasenia[]) {
+    // Abrimos en modo rb+ para poder leer y escribir el mismo archivo
+    FILE *f = abrirArchivo("clientes.dat", "rb+");
+    if(f == NULL) return 0;
+
+    Cliente aux;
+    int modificado = 0;
+
+    // Recorremos buscando el registro
+    while(leerRegistro(f, &aux, sizeof(Cliente))) {
+        if(aux.id_cliente == id && aux.activo == 1) {
+            // Modificamos los campos permitidos
+            strcpy(aux.direccion, nuevaDireccion);
+            strcpy(aux.contrasenia, nuevaContrasenia);
+
+            // Volvemos el cursor hacia atrás el tamaño de un registro
+            fseek(f, -sizeof(Cliente), SEEK_CUR);
+
+            // Sobreescribimos el registro modificado
+            modificado = escribirRegistro(f, &aux, sizeof(Cliente));
+            break; // Salimos del bucle ya que el ID es único
+        }
+    }
+
+    fclose(f);
+    return modificado; // Devuelve 1 si se logró, 0 si no
+}
+
+int bajaCliente(int id) {
+    FILE *f = abrirArchivo("clientes.dat", "rb+");
+    if(f == NULL) return 0;
+
+    Cliente aux;
+    int dadoDeBaja = 0;
+
+    while(leerRegistro(f, &aux, sizeof(Cliente))) {
+        if(aux.id_cliente == id && aux.activo == 1) {
+            aux.activo = 0;
+
+            fseek(f, -sizeof(Cliente), SEEK_CUR);
+
+            dadoDeBaja = escribirRegistro(f, &aux, sizeof(Cliente));
+
+            break;
+        }
+    }
+
+    fclose(f);
+    return dadoDeBaja;
 }
