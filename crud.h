@@ -3,17 +3,23 @@
 
 #include "estructuras.h"
 
-int buscarUsuarioPorID(int id);
+//--- ABM DE CLIENTES ---
 
-int guardarUsuario(Usuario u);
+int buscarClientePorID(int id);
 
-int altaUsuario(Usuario nuevo);
+int guardarCliente(Cliente u);
 
-void listarUsuarios();
+int altaCliente(Cliente nuevo);
 
-int validarUsuario(Usuario u);
+void listarClientes();
+
+int validarCliente(Cliente u);
 
 int idDisponible(int id);
 
+void listarClientesDebug();
+//--- ABM DE PEDIDOS ---
+
+int altaPedido(PedidoCliente nuevoPedido, ProductosPedido detalles[], int cantidadProductos);
 #endif
  // CRUD_H_INCLUDED

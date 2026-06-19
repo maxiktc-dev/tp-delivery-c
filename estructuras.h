@@ -3,7 +3,7 @@
 
 typedef struct
 {
-    int id_usuario;        // CP
+    int id_cliente;        // CP
     char direccion[150];
     char contrasenia[50];
     char email[100];
@@ -13,15 +13,15 @@ typedef struct
 
 typedef struct
 {
-    int id_usuario;
+    int id_cliente;
     int id_telefono;
     char descripcion[50];
-} TelefonoUsuario;
+} TelefonoCliente;
 
 typedef struct
 {
     int id_pedido;  // CP Id_pedido
-    int idUsuario; // CF id_usuario_cliente
+    int id_cliente; // CF id_usuario_cliente
     int id_usuario_restaurante; // CF id_usuario_restaurante
     char fecha[11]; // Fecha (EJ: "2026-06-18")
     char codigo_envio[20]; // Codigo_envio

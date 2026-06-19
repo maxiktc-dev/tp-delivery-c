@@ -29,3 +29,31 @@
 	<string.h>
 	"crud.h"
 
+1781827027 source:c:\users\maxi\desktop\rappi-ya\main\filemanager.c
+	"filemanager.h"
+
+1781827027 c:\users\maxi\desktop\rappi-ya\main\filemanager.h
+	<stdio.h>
+	<stdlib.h>
+
+1781831041 source:c:\users\maxi\desktop\rappi-ya\main\crud.c
+	<stdio.h>
+	<string.h>
+	<ctype.h>
+	"crud.h"
+	"estructuras.h"
+	"filemanager.h"
+
+1781829858 c:\users\maxi\desktop\rappi-ya\main\crud.h
+	"estructuras.h"
+
+1781831041 c:\users\maxi\desktop\rappi-ya\main\estructuras.h
+
+1781831154 source:c:\users\maxi\desktop\rappi-ya\main\main.c
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	"crud.h"
+	"filemanager.h"
+	"estructuras.h"
+
