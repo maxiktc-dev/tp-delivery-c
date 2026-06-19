@@ -761,28 +761,65 @@ void pantallaAltaPedidoCliente(int id_logueado) {
 
     p.id_cliente = id_logueado;
     printf("\n--- NUEVO PEDIDO ---\n");
+
+    // 1. Validar Restaurante y Mostrar sus datos en vivo
     do {
         printf("ID del Restaurante donde comprara: "); scanf("%d", &auxID); getchar();
-        inv = buscarRestaurantePorID(auxID) == 0;
-        if(inv) puts("Restaurante invalido o inactivo.");
+
+        // Buscar y mostrar nombre comercial
+        FILE *fr = fopen("restaurantes.dat", "rb");
+        inv = 1;
+        if(fr != NULL) {
+            Restaurante r;
+            while(leerRegistro(fr, &r, sizeof(Restaurante))) {
+                if(r.id_restaurante == auxID && r.activo == 1) {
+                    printf("\n>>> COMPRANDO EN: %s <<<\n", r.nombre);
+                    inv = 0;
+                    break;
+                }
+            }
+            fclose(fr);
+        }
+        if(inv) puts("Restaurante invalido o inactivo. Intente de nuevo.");
     } while(inv);
     p.id_usuario_restaurante = auxID;
+
+    // 2. Listar automáticamente los platos cargados de este restaurante
+    printf("\n--- MENU DISPONIBLE DEL LOCAL ---\n");
+    FILE *fp = fopen("productos.dat", "rb");
+    int tiene_platos = 0;
+    if(fp != NULL) {
+        Producto prod;
+        while(leerRegistro(fp, &prod, sizeof(Producto))) {
+            if(prod.id_usuario_restaurante == p.id_usuario_restaurante && prod.activo == 1) {
+                printf("  ID: %d | %s | Desc: %s | Precio: $%.2f\n",
+                       prod.id_producto, prod.nombre, prod.descripcion, prod.precio);
+                tiene_platos = 1;
+            }
+        }
+        fclose(fp);
+    }
+    if(!tiene_platos) {
+        printf("Aviso: Este restaurante no tiene platos activos en este momento.\n");
+        return;
+    }
+    printf("---------------------------------\n");
 
     printf("ID unico para el ticket del pedido: "); scanf("%d", &p.id_pedido); getchar();
     strcpy(p.fecha, "2026-06-19");
 
-    printf("Direccion de entrega: "); // ACÁ SÍ ES ESPECÍFICO DE ENTREGA
+    printf("Direccion de entrega: ");
     fgets(p.ubicacion_entrega, 100, stdin); p.ubicacion_entrega[strcspn(p.ubicacion_entrega, "\n")] = '\0';
     strcpy(p.codigo_envio, "ENV-AUTO");
     p.estado = 1; p.activo = 1;
 
-    printf("\n--- MENU DEL LOCAL ---\n");
+    printf("\n--- ARME SU CARRITO ---\n");
     p.total = 0.0;
     do {
         do {
-            printf("ID Plato: "); scanf("%d", &auxID); getchar();
+            printf("Ingrese ID del Plato a llevar: "); scanf("%d", &auxID); getchar();
             inv = buscarProductoPorID(p.id_usuario_restaurante, auxID) == 0;
-            if(inv) puts("Ese plato no pertenece al restaurante.");
+            if(inv) puts("Ese ID de plato no existe en este restaurante.");
         } while(inv);
 
         detalles[cantP].id_producto = auxID;
@@ -802,17 +839,76 @@ void pantallaAltaPedidoCliente(int id_logueado) {
 
 void pantallaListarPedidosUnicoCliente(int id_logueado) {
     FILE *f = fopen("pedidos.dat", "rb");
-    if(f == NULL) return;
+    if(f == NULL) { printf("Sin movimientos registrados.\n"); return; }
     PedidoCliente p; int enc = 0;
+
     printf("\n=== HISTORIAL DE SUS PEDIDOS (CLIENTE #%d) ===\n", id_logueado);
     while(fread(&p, sizeof(PedidoCliente), 1, f) == 1) {
         if(p.id_cliente == id_logueado && p.activo == 1) {
             enc++;
-            printf("\nPedido #%d | Total: $%.2f | Estado: %s\n", p.id_pedido, p.total,
+            printf("ID Pedido: #%d | Local ID: %d | Total: $%.2f | Estado: %s\n",
+                   p.id_pedido, p.id_usuario_restaurante, p.total,
                    p.estado==1?"Pendiente":p.estado==2?"En Viaje":"Entregado");
         }
     }
-    fclose(f); if(!enc) printf("Sin movimientos.\n");
+    fclose(f);
+    if(!enc) { printf("Sin movimientos.\n"); return; }
+
+    // Opción interactiva de feedback requerida por Lucía
+    printf("\n¿Desea calificar algun pedido de su lista? (s/n): ");
+    char calif_opc;
+    scanf("%c", &calif_opc); getchar();
+
+    if(calif_opc == 's' || calif_opc == 'S') {
+        int id_ped_buscar, estrellas, encontrado_y_valido = 0, id_resto_calificar = 0;
+        printf("Ingrese el ID del pedido a calificar: ");
+        scanf("%d", &id_ped_buscar); getchar();
+
+        // Verificar que el pedido le pertenezca y esté efectivamente Entregado (3)
+        f = fopen("pedidos.dat", "rb");
+        if(f != NULL) {
+            while(fread(&p, sizeof(PedidoCliente), 1, f) == 1) {
+                if(p.id_pedido == id_ped_buscar && p.id_cliente == id_logueado && p.activo == 1) {
+                    if(p.estado == 3) {
+                        encontrado_y_valido = 1;
+                        id_resto_calificar = p.id_usuario_restaurante;
+                    } else {
+                        printf("Aviso: No puede calificar este pedido porque todavia esta '%s'.\n",
+                               p.estado == 1 ? "Pendiente" : "En Viaje");
+                    }
+                    break;
+                }
+            }
+            fclose(f);
+        }
+
+        if(encontrado_y_valido) {
+            do {
+                printf("Ingrese su Calificacion para el restaurante (1 al 5 estrellas): ");
+                scanf("%d", &estrellas); getchar();
+            } while(estrellas < 1 || estrellas > 5);
+
+            // Algoritmo de actualización in-situ de promedios comerciales corporativos
+            FILE *fr = fopen("restaurantes.dat", "rb+");
+            if(fr != NULL) {
+                Restaurante r;
+                int modificado = 0;
+                while(leerRegistro(fr, &r, sizeof(Restaurante))) {
+                    if(r.id_restaurante == id_resto_calificar && r.activo == 1) {
+                        r.calificacion = (r.calificacion == 0.0) ? (float)estrellas : (r.calificacion + estrellas) / 2.0;
+                        fseek(fr, -(long)sizeof(Restaurante), SEEK_CUR);
+                        escribirRegistro(fr, &r, sizeof(Restaurante));
+                        modificado = 1;
+                        break;
+                    }
+                }
+                fclose(fr);
+                if(modificado) printf("¡Muchas gracias por su valoracion! El promedio del local fue actualizado.\n");
+            }
+        } else if(id_resto_calificar == 0) {
+            printf("Error: ID de ticket inexistente o no pertenece a su usuario.\n");
+        }
+    }
 }
 
 void gestionPedidosRestoEspecifico(int id_rest) {
@@ -824,8 +920,9 @@ void gestionPedidosRestoEspecifico(int id_rest) {
     while(fread(&p, sizeof(PedidoCliente), 1, f) == 1) {
         if(p.id_usuario_restaurante == id_rest && p.activo == 1) {
             enc++;
-            printf("ID Pedido: %d | Cliente: %d | Monto: $%.2f | Estado actual: %d\n",
-                   p.id_pedido, p.id_cliente, p.total, p.estado);
+            printf("ID Pedido: %d | Cliente: %d | Monto: $%.2f | Estado actual: %s\n",
+                   p.id_pedido, p.id_cliente, p.total,
+                   p.estado==1?"Pendiente":p.estado==2?"En Viaje":"Entregado");
         }
     }
     fclose(f);
@@ -839,28 +936,9 @@ void gestionPedidosRestoEspecifico(int id_rest) {
 
         if(modificarEstadoPedido(idb, opc)) {
             printf("¡Estado cambiado con exito!\n");
-
-            if(opc == 3) {
-                Calificacion cal; memset(&cal, 0, sizeof(Calificacion));
-                cal.id_calificacion = 99;
-                cal.id_restaurante = id_rest;
-                printf("Pedido entregado. Ingrese Calificacion del Cliente (1 al 5): ");
-                scanf("%d", &cal.estrellas); getchar();
-
-                FILE *fr = fopen("restaurantes.dat", "rb+");
-                if(fr != NULL) {
-                    Restaurante r;
-                    while(leerRegistro(fr, &r, sizeof(Restaurante))) {
-                        if(r.id_restaurante == id_rest) {
-                            r.calificacion = (r.calificacion == 0.0) ? cal.estrellas : (r.calificacion + cal.estrellas)/2.0;
-                            fseek(fr, -(long)sizeof(Restaurante), SEEK_CUR);
-                            escribirRegistro(fr, &r, sizeof(Restaurante));
-                            break;
-                        }
-                    }
-                    fclose(fr);
-                }
-            }
+            // Se eliminó la solicitud de calificación desde acá.
+        } else {
+            printf("Error al actualizar el estado del pedido.\n");
         }
     }
 }
