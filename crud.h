@@ -3,78 +3,64 @@
 
 #include "estructuras.h"
 
-// ==========================================
-// --- 1. ABM DE PLATOS (PRODUCTOS) ---
-// ==========================================
-void gestionPlatos();
-void menuAltaProducto(int id_rest);
-void menuModificarProducto(int id_rest);
-void menuBajaProducto(int id_rest);
-int buscarProductoPorID(int id_restaurante, int id_producto);
-int guardarProducto(Producto p);
-int modificarProducto(int id_restaurante, int id_producto, char nuevoNombre[], float nuevoPrecio);
-int bajaProducto(int id_restaurante, int id_producto);
-void listarProductosDebug();
-int checkEstadoProductoGlobal(int id_restaurante, int id_producto);
-int reactivarYModificarProducto(Producto p);
-int reactivarProductoSimple(int id_restaurante, int id_producto);
-
-// ==========================================
-// --- 2. ABM DE RESTAURANTES ---
-// ==========================================
-int checkEstadoRestauranteGlobal(int id);
-int reactivarRestauranteSimple(int id);
-void pantallaReactivarRestaurante();
-void gestionRestaurantes();
-void pantallaAltaRestaurante();
-void pantallaModificacionRestaurante();
-void pantallaBajaRestaurante();
-void listarRestaurantesDebug();
-int guardarRestaurante(Restaurante r);
-int buscarRestaurantePorID(int id);
-int modificarRestaurante(int id, char nuevoNombre[], char nuevaDescripcion[]);
-int bajaRestaurante(int id);
-
-// ==========================================
-// --- 3. ABM Y VALIDACIONES DE CLIENTES ---
-// ==========================================
-int checkEstadoClienteGlobal(int id);
-int reactivarClienteSimple(int id);
-void pantallaReactivarCliente();
+// --- CATEGORÍA 1: CLIENTES ---
 void gestionClientes();
 void pantallaAltaCliente();
 void pantallaModificarCliente();
 void pantallaBajaCliente();
-void listarClientes();
-void listarClientesDebug();
-int validarNombre(char nombre[]);
-int validarEmail(char email[]);
-int modificarCliente(int id, char nuevaDireccion[], char nuevaContrasenia[]);
-int bajaCliente(int id);
+void pantallaReactivarCliente();
 int buscarClientePorID(int id);
-int guardarCliente(Cliente u);
-int altaCliente(Cliente nuevo);
-int validarCliente(Cliente u);
-int idDisponible(int id);
+int buscarClientePorIdYContrasenia(int id, char pass[]);
+int guardarCliente(Cliente c);
+int modificarClienteCompleto(int id, char nuevaDireccion[], char nuevaContrasenia[], char nuevoTelefono[]);
+int bajaCliente(int id);
+int checkEstadoClienteGlobal(int id);
+int reactivarClienteSimple(int id);
+void listarClientesDebug();
 
-// ==========================================
-// --- 4. ABM DE PEDIDOS ---
-// ==========================================
-void gestionPedidos();
-void pantallaAltaPedido();
-void pantallaModificarEstadoPedido();
-void pantallaBajaPedido();
+// --- CATEGORÍA 2: RESTAURANTES ---
+void gestionRestaurantes();
+void pantallaAltaRestaurante();
+void pantallaModificacionRestaurante();
+void pantallaBajaRestaurante();
+void pantallaReactivarRestaurante();
+int buscarRestaurantePorID(int id);
+int buscarRestoPorIdYContrasenia(int id, char pass[]);
+int guardarRestaurante(Restaurante r);
+int modificarRestaurante(int id, char nuevoNombre[], char nuevaDescripcion[]);
+int bajaRestaurante(int id);
+int checkEstadoRestauranteGlobal(int id);
+int reactivarRestauranteSimple(int id);
+void listarRestaurantesDebug();
+
+// --- CATEGORÍA 3: PLATOS ---
+void gestionPlatosRestoEspecifico(int id_rest);
+void menuAltaProducto(int id_rest);
+void menuModificarProducto(int id_rest);
+void menuBajaProducto(int id_rest);
+void menuReactivarProducto(int id_rest);
+int buscarProductoPorID(int id_restaurante, int id_producto);
+int guardarProducto(Producto p);
+int modificarProducto(int id_restaurante, int id_producto, char nuevoNombre[], float nuevoPrecio);
+int bajaProducto(int id_restaurante, int id_producto);
+int checkEstadoProductoGlobal(int id_restaurante, int id_producto);
+int reactivarProductoSimple(int id_restaurante, int id_producto);
+int reactivarYModificarProducto(Producto p);
+void listarProductosDebug();
+
+// --- CATEGORÍA 4: PEDIDOS ---
+void pantallaAltaPedidoCliente(int id_logueado);
+void pantallaListarPedidosUnicoCliente(int id_logueado);
+void gestionPedidosRestoEspecifico(int id_rest);
 int altaPedido(PedidoCliente nuevoPedido, ProductosPedido detalles[], int cantidadProductos);
 int modificarEstadoPedido(int id_pedido, int nuevoEstado);
 int bajaPedido(int id_pedido);
-void pantallaListarPedidosCliente();
-int validarFecha();
 void listarPedidosDebug();
 
-// ==========================================
-// --- 5. INFORMES ---
-// ==========================================
-
-void generarInformesTxt();
+// --- CATEGORÍA 5: VALIDACIONES ---
+int validarTelefono(char telefono[]);
+int validarNombre(char nombre[]);
+int validarEmail(char email[]);
+int validarFecha(char fecha[]);
 
 #endif // CRUD_H
