@@ -14,6 +14,12 @@ void gestionRestaurantes();
 //--- ABM DE CLIENTES ---
 void gestionClientes();
 
+void pantallaAltaCliente();
+
+void pantallaModificarCliente();
+
+void pantallaBajaCliente();
+
 int validarNombre(char nombre[]);
 
 int validarEmail(char email[]);

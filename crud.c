@@ -179,24 +179,10 @@ int bajaRestaurante(int id) {
 }
 
 // --- 1. ABM Y LÓGICA DE CLIENTES ---
-
-
-void gestionClientes() {
-    int opcABM;
+void pantallaAltaCliente(){
     Cliente c;
-    int auxENTERO = 0;
+    int auxENTERO, invalido;
     char auxCARACTER[150];
-    int invalido = 0;
-
-    printf("\n--- ABM CLIENTES ---\n");
-    printf("1. Alta de Cliente\n");
-    printf("2. Modificar Cliente\n");
-    printf("3. Baja de Cliente\n");
-    printf("Opcion ABM: ");
-    scanf("%d", &opcABM);
-    getchar();
-
-    if(opcABM == 1) {
         printf("\n--- ALTA DE CLIENTE ---\n");
         do {
             printf("ID: ");
@@ -249,7 +235,12 @@ void gestionClientes() {
             printf("Error: No se pudo guardar el cliente.\n");
         }
     }
-    else if(opcABM == 2) {
+
+
+void pantallaModificarCliente(){
+    Cliente c;
+    int auxENTERO, invalido;
+    char auxCARACTER[150];
         char nuevaDir[150], nuevaPass[50];
         printf("\n--- MODIFICAR CLIENTE ---\n");
         printf("Ingrese el ID del cliente a modificar: ");
@@ -282,7 +273,13 @@ void gestionClientes() {
             }
         }
     }
-    else if(opcABM == 3) {
+
+
+void pantallaBajaCliente(){
+    Cliente c;
+    int auxENTERO, invalido;
+    char auxCARACTER[150];
+
         printf("\n--- BAJA DE CLIENTE ---\n");
         printf("Ingrese el ID del cliente a dar de baja: ");
         scanf("%d", &auxENTERO);
@@ -298,7 +295,43 @@ void gestionClientes() {
             }
         }
     }
+
+
+void gestionClientes() {
+    int opcABM;
+
+    do {
+        printf("\n--- ABM CLIENTES ---\n");
+        printf("1. Alta de Cliente\n");
+        printf("2. Modificar Cliente\n");
+        printf("3. Baja de Cliente\n");
+        printf("0. Volver al menu principal\n");
+        printf("Opcion ABM: ");
+        scanf("%d", &opcABM);
+        getchar();
+
+        switch(opcABM) {
+            case 1:
+                pantallaAltaCliente();
+                break;
+            case 2:
+                pantallaModificarCliente();
+                break;
+            case 3:
+                pantallaBajaCliente();
+                break;
+            case 0:
+                printf("Volviendo...\n");
+                break;
+            default:
+                printf("Opcion invalida.\n");
+        }
+    } while(opcABM != 0);
 }
+
+
+
+
 
 
 
