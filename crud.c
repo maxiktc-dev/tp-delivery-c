@@ -375,4 +375,505 @@ void gestionRestaurantes()
         {
         case 1:
             pantallaAltaRestaurante();
-            break
+            break;
+        case 2:
+            pantallaModificacionRestaurante(); // Corregido el nombre de la llamada
+            break;
+        case 3:
+            pantallaBajaRestaurante();
+            break;
+        case 0:
+            printf("Volviendo...\n");
+            break;
+        default:
+            printf("Opcion invalida.\n");
+        }
+    }
+    while(opcABM != 0);
+}
+
+int buscarRestaurantePorID(int id)
+{
+    FILE *f = abrirArchivo("restaurantes.dat", "rb");
+    if(f == NULL) return 0;
+
+    Restaurante aux;
+    while(leerRegistro(f, &aux, sizeof(Restaurante)))
+    {
+        if(aux.id_restaurante == id && aux.activo == 1)
+        {
+            fclose(f);
+            return 1;
+        }
+    }
+    fclose(f);
+    return 0;
+}
+
+int guardarRestaurante(Restaurante r)
+{
+    FILE *f = abrirArchivo("restaurantes.dat", "ab");
+    if(f == NULL) return 0;
+
+    int resultado = escribirRegistro(f, &r, sizeof(Restaurante));
+    fclose(f);
+    return resultado;
+}
+
+int modificarRestaurante(int id, char nuevoNombre[], char nuevaDescripcion[])
+{
+    FILE *f = abrirArchivo("restaurantes.dat", "rb+");
+    if(f == NULL) return 0;
+
+    Restaurante aux;
+    int modificado = 0;
+
+    while(leerRegistro(f, &aux, sizeof(Restaurante)))
+    {
+        if(aux.id_restaurante == id && aux.activo == 1)
+        {
+            strcpy(aux.nombre, nuevoNombre);
+            strcpy(aux.descripcion, nuevaDescripcion);
+
+            fseek(f, -sizeof(Restaurante), SEEK_CUR);
+            modificado = escribirRegistro(f, &aux, sizeof(Restaurante));
+            break;
+        }
+    }
+    fclose(f);
+    return modificado;
+}
+
+int bajaRestaurante(int id)
+{
+    FILE *f = abrirArchivo("restaurantes.dat", "rb+");
+    if(f == NULL) return 0;
+
+    Restaurante aux;
+    int dadoDeBaja = 0;
+
+    while(leerRegistro(f, &aux, sizeof(Restaurante)))
+    {
+        if(aux.id_restaurante == id && aux.activo == 1)
+        {
+            aux.activo = 0;
+
+            fseek(f, -sizeof(Restaurante), SEEK_CUR);
+            dadoDeBaja = escribirRegistro(f, &aux, sizeof(Restaurante));
+            break;
+        }
+    }
+    fclose(f);
+    return dadoDeBaja;
+}
+
+// ==========================================
+// --- 1. ABM Y LÓGICA DE CLIENTES ---
+// ==========================================
+
+void pantallaAltaCliente()
+{
+    Cliente c;
+    int auxENTERO, invalido;
+    char auxCARACTER[150];
+    printf("\n--- ALTA DE CLIENTE ---\n");
+    do
+    {
+        printf("ID: ");
+        scanf("%d", &auxENTERO);
+        getchar();
+        invalido = buscarClientePorID(auxENTERO) == 1;
+        if(invalido) puts("Ese ID ya existe, ingrese otro!");
+    }
+    while(invalido);
+    c.id_cliente = auxENTERO;
+
+    do
+    {
+        printf("Nombre: ");
+        fgets(auxCARACTER, sizeof(auxCARACTER), stdin);
+        auxCARACTER[strcspn(auxCARACTER, "\n")] = '\0';
+        invalido = validarNombre(auxCARACTER) == 0;
+        if(invalido) puts("Nombre invalido, intente devuelta");
+    }
+    while(invalido);
+    strcpy(c.nombre, auxCARACTER);
+
+    do
+    {
+        printf("Email: ");
+        fgets(auxCARACTER, sizeof(auxCARACTER), stdin);
+        auxCARACTER[strcspn(auxCARACTER, "\n")] = '\0';
+        invalido = validarEmail(auxCARACTER) == 0;
+        if(invalido) puts("El email es invalido, intente denuevo");
+    }
+    while(invalido);
+    strcpy(c.email, auxCARACTER);
+
+    do
+    {
+        printf("Contrase%ca: ", 164);
+        fgets(auxCARACTER, sizeof(auxCARACTER), stdin);
+        auxCARACTER[strcspn(auxCARACTER, "\n")] = '\0';
+        invalido = strlen(auxCARACTER) == 0;
+        if(invalido) puts("Debe llenar el campo");
+    }
+    while(invalido);
+    strcpy(c.contrasenia, auxCARACTER);
+
+    do
+    {
+        printf("Direccion: ");
+        fgets(auxCARACTER, sizeof(auxCARACTER), stdin);
+        auxCARACTER[strcspn(auxCARACTER, "\n")] = '\0';
+        invalido = strlen(auxCARACTER) == 0;
+        if(invalido) puts("Debe llenar el campo");
+    }
+    while(invalido);
+    strcpy(c.direccion, auxCARACTER);
+
+    if(altaCliente(c) == 1)
+    {
+        printf("¡Cliente guardado exitosamente!\n");
+    }
+    else
+    {
+        printf("Error: No se pudo guardar el cliente.\n");
+    }
+}
+
+void pantallaModificarCliente()
+{
+    int auxENTERO, invalido;
+    char nuevaDir[150], nuevaPass[50];
+    printf("\n--- MODIFICAR CLIENTE ---\n");
+    printf("Ingrese el ID del cliente a modificar: ");
+    scanf("%d", &auxENTERO);
+    getchar();
+
+    if(buscarClientePorID(auxENTERO) == 0)
+    {
+        puts("Error: El ID no existe o el cliente esta de baja.");
+    }
+    else
+    {
+        do
+        {
+            printf("Ingrese Nueva Direccion: ");
+            fgets(nuevaDir, sizeof(nuevaDir), stdin);
+            nuevaDir[strcspn(nuevaDir, "\n")] = '\0';
+            invalido = strlen(nuevaDir) == 0;
+            if(invalido) puts("Debe llenar el campo");
+        }
+        while(invalido);
+
+        do
+        {
+            printf("Ingrese Nueva Contrase%ca: ", 164);
+            fgets(nuevaPass, sizeof(nuevaPass), stdin);
+            nuevaPass[strcspn(nuevaPass, "\n")] = '\0';
+            invalido = strlen(nuevaPass) == 0;
+            if(invalido) puts("Debe llenar el campo");
+        }
+        while(invalido);
+
+        if(modificarCliente(auxENTERO, nuevaDir, nuevaPass) == 1)
+        {
+            printf("¡Cliente modificado con exito!\n");
+        }
+        else
+        {
+            printf("Error al intentar modificar.\n");
+        }
+    }
+}
+
+void pantallaBajaCliente()
+{
+    int auxENTERO;
+    printf("\n--- BAJA DE CLIENTE ---\n");
+    printf("Ingrese el ID del cliente a dar de baja: ");
+    scanf("%d", &auxENTERO);
+    getchar();
+
+    if(buscarClientePorID(auxENTERO) == 0)
+    {
+        puts("Error: El ID no existe o ya esta de baja.");
+    }
+    else
+    {
+        if(bajaCliente(auxENTERO) == 1)
+        {
+            printf("¡Cliente dado de baja exitosamente!\n");
+        }
+        else
+        {
+            printf("Error al intentar dar de baja.\n");
+        }
+    }
+}
+
+void gestionClientes()
+{
+    int opcABM;
+    do
+    {
+        printf("\n--- ABM CLIENTES ---\n");
+        printf("1. Alta de Cliente\n");
+        printf("2. Modificar Cliente\n");
+        printf("3. Baja de Cliente\n");
+        printf("0. Volver al menu principal\n");
+        printf("Opcion ABM: ");
+        scanf("%d", &opcABM);
+        getchar();
+
+        switch(opcABM)
+        {
+        case 1:
+            pantallaAltaCliente();
+            break;
+        case 2:
+            pantallaModificarCliente();
+            break;
+        case 3:
+            pantallaBajaCliente();
+            break;
+        case 0:
+            printf("Volviendo...\n");
+            break;
+        default:
+            printf("Opcion invalida.\n");
+        }
+    }
+    while(opcABM != 0);
+}
+
+int buscarClientePorID(int id)
+{
+    FILE *f = abrirArchivo("clientes.dat", "rb");
+    if(f == NULL) return 0;
+
+    Cliente aux;
+    while(leerRegistro(f, &aux, sizeof(Cliente)))
+    {
+        if(aux.id_cliente == id && aux.activo == 1)
+        {
+            fclose(f);
+            return 1;
+        }
+    }
+    fclose(f);
+    return 0;
+}
+
+int guardarCliente(Cliente c)
+{
+    FILE *f = abrirArchivo("clientes.dat", "ab");
+    if(f == NULL) return 0;
+
+    int resultado = escribirRegistro(f, &c, sizeof(Cliente));
+    fclose(f);
+    return resultado;
+}
+
+void listarClientes()
+{
+    FILE *f = abrirArchivo("clientes.dat", "rb");
+    if(f == NULL)
+    {
+        printf("No hay clientes registrados o no se pudo abrir el archivo.\n");
+        return;
+    }
+
+    Cliente aux;
+    printf("\n--- LISTA DE CLIENTES ---\n");
+    while(leerRegistro(f, &aux, sizeof(Cliente)))
+    {
+        if(aux.activo == 1)
+        {
+            printf("ID: %d | Nombre: %s\n", aux.id_cliente, aux.nombre);
+        }
+    }
+    fclose(f);
+}
+
+// --- 2. VALIDACIONES ---
+
+int validarNombre(char nombre[])
+{
+    int len = strlen(nombre);
+    if(len == 0) return 0;
+
+    for(int i = 0; i < len; i++)
+    {
+        if(!isalpha(nombre[i]) && nombre[i] != ' ')
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int validarEmail(char email[])
+{
+    if(strlen(email) == 0) return 0;
+
+    char *arroba = strchr(email, '@');
+    char *punto = strrchr(email, '.');
+
+    if(arroba != NULL && punto != NULL && arroba + 1 < punto)
+    {
+        return 1;
+    }
+    return 0;
+}
+
+int idDisponible(int id)
+{
+    FILE *f = abrirArchivo("clientes.dat", "rb");
+    if(f == NULL) return 1;
+
+    Cliente aux;
+    while(leerRegistro(f, &aux, sizeof(Cliente)))
+    {
+        if(aux.id_cliente == id)
+        {
+            fclose(f);
+            return 0;
+        }
+    }
+    fclose(f);
+    return 1;
+}
+
+int altaCliente(Cliente nuevo)
+{
+    nuevo.activo = 1;
+    return guardarCliente(nuevo);
+}
+
+// --- 3. GESTIÓN DE PEDIDOS ---
+
+int altaPedido(PedidoCliente nuevoPedido, ProductosPedido detalles[], int cantidadProductos)
+{
+    nuevoPedido.activo = 1;
+    nuevoPedido.estado = 1;
+
+    FILE *fPedidos = abrirArchivo("pedidos.dat", "ab");
+    if(fPedidos == NULL) return 0;
+
+    int okPedido = escribirRegistro(fPedidos, &nuevoPedido, sizeof(PedidoCliente));
+    fclose(fPedidos);
+
+    if(!okPedido)
+    {
+        printf("Error: No se pudo registrar el pedido.\n");
+        return 0;
+    }
+
+    FILE *fDetalles = abrirArchivo("detalles_pedido.dat", "ab");
+    if(fDetalles == NULL) return 0;
+
+    for(int i = 0; i < cantidadProductos; i++)
+    {
+        detalles[i].id_pedido = nuevoPedido.id_pedido;
+        escribirRegistro(fDetalles, &detalles[i], sizeof(ProductosPedido));
+    }
+    fclose(fDetalles);
+    return 1;
+}
+
+void listarClientesDebug()
+{
+    FILE *f = abrirArchivo("clientes.dat", "rb");
+    if(f == NULL)
+    {
+        printf("El archivo no existe o todavia esta vacio.\n");
+        return;
+    }
+
+    Cliente aux;
+    printf("\n=== DEBUG: TODOS LOS CLIENTES EN LA BASE DE DATOS ===\n");
+
+    while(leerRegistro(f, &aux, sizeof(Cliente)))
+    {
+        printf("ID Cliente : %d\n", aux.id_cliente);
+        printf("Estado     : %s\n", aux.activo == 1 ? "Activo (1)" : "Baja (0)");
+        printf("Nombre     : %s\n", aux.nombre);
+        printf("Email      : %s\n", aux.email);
+        printf("Direccion  : %s\n", aux.direccion);
+        printf("Contrasenia: %s\n", aux.contrasenia);
+        printf("---------------------------------------------------\n");
+    }
+    fclose(f);
+}
+
+int modificarCliente(int id, char nuevaDireccion[], char nuevaContrasenia[])
+{
+    FILE *f = abrirArchivo("clientes.dat", "rb+");
+    if(f == NULL) return 0;
+
+    Cliente aux;
+    int modificado = 0;
+
+    while(leerRegistro(f, &aux, sizeof(Cliente)))
+    {
+        if(aux.id_cliente == id && aux.activo == 1)
+        {
+            strcpy(aux.direccion, nuevaDireccion);
+            strcpy(aux.contrasenia, nuevaContrasenia);
+
+            fseek(f, -sizeof(Cliente), SEEK_CUR);
+            modificado = escribirRegistro(f, &aux, sizeof(Cliente));
+            break;
+        }
+    }
+    fclose(f);
+    return modificado;
+}
+
+int bajaCliente(int id)
+{
+    FILE *f = abrirArchivo("clientes.dat", "rb+");
+    if(f == NULL) return 0;
+
+    Cliente aux;
+    int dadoDeBaja = 0;
+
+    while(leerRegistro(f, &aux, sizeof(Cliente)))
+    {
+        if(aux.id_cliente == id && aux.activo == 1)
+        {
+            aux.activo = 0;
+
+            fseek(f, -sizeof(Cliente), SEEK_CUR);
+            dadoDeBaja = escribirRegistro(f, &aux, sizeof(Cliente));
+            break;
+        }
+    }
+    fclose(f);
+    return dadoDeBaja;
+}
+
+void listarRestaurantesDebug()
+{
+    FILE *f = abrirArchivo("restaurantes.dat", "rb");
+    if (f == NULL)
+    {
+        printf("El archivo de restaurantes no existe o todavia esta vacio.\n");
+        return;
+    }
+
+    Restaurante aux;
+    printf("\n=== DEBUG: TODOS LOS RESTAURANTES EN LA BASE DE DATOS ===\n");
+
+    while (leerRegistro(f, &aux, sizeof(Restaurante)))
+    {
+        printf("ID Restaurante: %d\n", aux.id_restaurante);
+        printf("Estado        : %s\n", aux.activo == 1 ? "Activo (1)" : "Baja (0)");
+        printf("Nombre        : %s\n", aux.nombre);
+        printf("Descripcion   : %s\n", aux.descripcion);
+        printf("---------------------------------------------------\n");
+    }
+    fclose(f);
+}
