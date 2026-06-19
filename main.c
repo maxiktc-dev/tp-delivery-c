@@ -41,10 +41,10 @@ int main()
                 gestionPedidos();
                 break;
             case 5:
-                printf("Proximamente: Listar Pedidos por Cliente\n");
+                pantallaListarPedidosCliente();
                 break;
             case 6:
-                printf("Proximamente: Informes\n");
+                generarInformesTxt();
                 break;
             case 0:
                 printf("Saliendo del sistema...\n");

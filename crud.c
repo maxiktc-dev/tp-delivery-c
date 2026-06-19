@@ -1077,7 +1077,34 @@ void gestionPedidos()
     while(opcABM != 0);
 }
 
+void pantallaListarPedidosCliente()
+{
+    int id_buscado;
+    printf("\n--- LISTAR PEDIDOS POR CLIENTE ---\n");
+    printf("Ingrese el ID del Cliente: ");
+    scanf("%d", &id_buscado);
+    getchar();
+
+    // Validar si el cliente existe...
+    if(buscarClientePorID(id_buscado) == 0)
+    {
+        printf("Error: El cliente no existe o esta de baja.\n");
+        return;
+    }
+
+    // Acá tu compañera puede meter el while() que lea pedidos.dat
+    // y filtre los que coincidan con id_buscado.
+    printf("\n[DEBUG] Funcion en construccion. Aca se listaran los pedidos del cliente %d\n", id_buscado);
+}
+
 //--- DEBUG ---
+
+void generarInformesTxt()
+{
+    printf("\n--- GENERACION DE INFORMES ---\n");
+    // Acá tu compañera puede armar la lógica de crear el .txt
+    printf("\n[DEBUG] Funcion en construccion. Aca se exportaran los datos a texto.\n");
+}
 
 
 void listarClientesDebug()
