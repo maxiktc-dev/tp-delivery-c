@@ -14,6 +14,7 @@ int buscarProductoPorID(int id_restaurante, int id_producto);
 int guardarProducto(Producto p);
 int modificarProducto(int id_restaurante, int id_producto, char nuevoNombre[], float nuevoPrecio);
 int bajaProducto(int id_restaurante, int id_producto);
+void listarProductosDebug();
 
 // ==========================================
 // --- 2. ABM DE RESTAURANTES ---
@@ -50,6 +51,12 @@ int idDisponible(int id);
 // ==========================================
 // --- 4. ABM DE PEDIDOS ---
 // ==========================================
+void gestionPedidos();
+void pantallaAltaPedido();
+void pantallaModificarEstadoPedido();
+void pantallaBajaPedido();
 int altaPedido(PedidoCliente nuevoPedido, ProductosPedido detalles[], int cantidadProductos);
-
+int modificarEstadoPedido(int id_pedido, int nuevoEstado);
+int bajaPedido(int id_pedido);
+void listarPedidosDebug();
 #endif // CRUD_H
