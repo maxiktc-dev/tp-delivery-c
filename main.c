@@ -3,9 +3,10 @@
 #include <string.h>
 #include <conio.h>
 #include <stdbool.h>
+#include "estructuras.h"
 #include "crud.h"
 #include "filemanager.h"
-#include "estructuras.h"
+
 
 int main()
 {
@@ -39,7 +40,14 @@ int main()
                 break;
 
             case 2:
+                gestionRestaurantes();
+                break;
+
+            case 9:
                 listarClientesDebug();
+                break;
+            case 10:
+                listarRestaurantesDebug();
                 break;
         }
 

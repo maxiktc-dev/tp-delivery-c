@@ -2,9 +2,181 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "crud.h"
 #include "estructuras.h"
+#include "crud.h"
 #include "filemanager.h"
+
+
+
+void gestionRestaurantes() {
+    int opcABM;
+    Restaurante r;
+    int auxENTERO = 0;
+    char auxCARACTER[150];
+    int invalido = 0;
+
+    printf("\n--- ABM RESTAURANTES ---\n");
+    printf("1. Alta de Restaurante\n");
+    printf("2. Modificar Restaurante\n");
+    printf("3. Baja de Restaurante\n");
+    printf("Opcion ABM: ");
+    scanf("%d", &opcABM);
+    getchar(); // Limpia el Enter del buffer
+
+    if(opcABM == 1) {
+        printf("\n--- ALTA DE RESTAURANTE ---\n");
+        do {
+            printf("ID Restaurante: ");
+            scanf("%d", &auxENTERO);
+            getchar();
+            invalido = buscarRestaurantePorID(auxENTERO) == 1;
+            if(invalido) puts("Ese ID ya existe, ingrese otro!");
+        } while(invalido);
+        r.id_restaurante = auxENTERO;
+
+        do {
+            printf("Nombre del Restaurante: ");
+            fgets(auxCARACTER, sizeof(auxCARACTER), stdin);
+            auxCARACTER[strcspn(auxCARACTER, "\n")] = '\0';
+            invalido = validarNombre(auxCARACTER) == 0;
+            if(invalido) puts("Nombre invalido, intente de nuevo");
+        } while(invalido);
+        strcpy(r.nombre, auxCARACTER);
+
+        do {
+            printf("Descripcion / Rubro: ");
+            fgets(auxCARACTER, sizeof(auxCARACTER), stdin);
+            auxCARACTER[strcspn(auxCARACTER, "\n")] = '\0';
+            invalido = strlen(auxCARACTER) == 0;
+            if(invalido) puts("Debe llenar el campo");
+        } while(invalido);
+        strcpy(r.descripcion, auxCARACTER);
+
+        r.activo = 1; // Alta lógica
+
+        if(guardarRestaurante(r) == 1) {
+            printf("¡Restaurante registrado exitosamente!\n");
+        } else {
+            printf("Error: No se pudo guardar.\n");
+        }
+    }
+    else if(opcABM == 2) {
+        char nuevoNombre[50], nuevaDesc[150];
+        printf("\n--- MODIFICAR RESTAURANTE ---\n");
+        printf("Ingrese el ID del restaurante a modificar: ");
+        scanf("%d", &auxENTERO);
+        getchar();
+
+        if(buscarRestaurantePorID(auxENTERO) == 0) {
+            puts("Error: El ID no existe o esta de baja.");
+        } else {
+            do {
+                printf("Nuevo Nombre: ");
+                fgets(nuevoNombre, sizeof(nuevoNombre), stdin);
+                nuevoNombre[strcspn(nuevoNombre, "\n")] = '\0';
+                invalido = validarNombre(nuevoNombre) == 0;
+                if(invalido) puts("Nombre invalido");
+            } while(invalido);
+
+            do {
+                printf("Nueva Descripcion: ");
+                fgets(nuevaDesc, sizeof(nuevaDesc), stdin);
+                nuevaDesc[strcspn(nuevaDesc, "\n")] = '\0';
+                invalido = strlen(nuevaDesc) == 0;
+                if(invalido) puts("Debe llenar el campo");
+            } while(invalido);
+
+            if(modificarRestaurante(auxENTERO, nuevoNombre, nuevaDesc) == 1) {
+                printf("¡Restaurante modificado con exito!\n");
+            } else {
+                printf("Error al intentar modificar.\n");
+            }
+        }
+    }
+    else if(opcABM == 3) {
+        printf("\n--- BAJA DE RESTAURANTE ---\n");
+        printf("Ingrese el ID del restaurante a dar de baja: ");
+        scanf("%d", &auxENTERO);
+        getchar();
+
+        if(buscarRestaurantePorID(auxENTERO) == 0) {
+            puts("Error: El ID no existe o ya esta de baja.");
+        } else {
+            if(bajaRestaurante(auxENTERO) == 1) {
+                printf("¡Restaurante dado de baja exitosamente!\n");
+            } else {
+                printf("Error al intentar dar de baja.\n");
+            }
+        }
+    }
+}
+
+int buscarRestaurantePorID(int id) {
+    FILE *f = abrirArchivo("restaurantes.dat", "rb");
+    if(f == NULL) return 0;
+
+    Restaurante aux; // <-- Cambiado a Restaurante
+    while(leerRegistro(f, &aux, sizeof(Restaurante))) {
+        if(aux.id_restaurante == id && aux.activo == 1) {
+            fclose(f);
+            return 1;
+        }
+    }
+    fclose(f);
+    return 0;
+}
+
+int guardarRestaurante(Restaurante r) { // <-- Cambiado a Restaurante
+    FILE *f = abrirArchivo("restaurantes.dat", "ab");
+    if(f == NULL) return 0;
+
+    int resultado = escribirRegistro(f, &r, sizeof(Restaurante));
+    fclose(f);
+    return resultado;
+}
+
+
+int modificarRestaurante(int id, char nuevoNombre[], char nuevaDescripcion[]) {
+    FILE *f = abrirArchivo("restaurantes.dat", "rb+");
+    if(f == NULL) return 0;
+
+    Restaurante aux; // <-- Cambiado a Restaurante
+    int modificado = 0;
+
+    while(leerRegistro(f, &aux, sizeof(Restaurante))) {
+        if(aux.id_restaurante == id && aux.activo == 1) {
+            strcpy(aux.nombre, nuevoNombre);
+            strcpy(aux.descripcion, nuevaDescripcion);
+
+            fseek(f, -sizeof(Restaurante), SEEK_CUR);
+            modificado = escribirRegistro(f, &aux, sizeof(Restaurante));
+            break;
+        }
+    }
+    fclose(f);
+    return modificado;
+}
+
+
+int bajaRestaurante(int id) {
+    FILE *f = abrirArchivo("restaurantes.dat", "rb+");
+    if(f == NULL) return 0;
+
+    Restaurante aux; // <-- Cambiado a Restaurante
+    int dadoDeBaja = 0;
+
+    while(leerRegistro(f, &aux, sizeof(Restaurante))) {
+        if(aux.id_restaurante == id && aux.activo == 1) {
+            aux.activo = 0;
+
+            fseek(f, -sizeof(Restaurante), SEEK_CUR);
+            dadoDeBaja = escribirRegistro(f, &aux, sizeof(Restaurante));
+            break;
+        }
+    }
+    fclose(f);
+    return dadoDeBaja;
+}
 
 // --- 1. ABM Y LÓGICA DE CLIENTES ---
 
@@ -353,4 +525,27 @@ int bajaCliente(int id) {
 
     fclose(f);
     return dadoDeBaja;
+}
+
+
+void listarRestaurantesDebug() {
+    FILE *f = abrirArchivo("restaurantes.dat", "rb");
+    if (f == NULL) {
+        printf("El archivo de restaurantes no existe o todavia esta vacio.\n");
+        return;
+    }
+
+    Restaurante aux;
+    printf("\n=== DEBUG: TODOS LOS RESTAURANTES EN LA BASE DE DATOS ===\n");
+
+    // Leemos el archivo binario de principio a fin de a un registro por vez
+    while (leerRegistro(f, &aux, sizeof(Restaurante))) {
+        printf("ID Restaurante: %d\n", aux.id_restaurante);
+        printf("Estado        : %s\n", aux.activo == 1 ? "Activo (1)" : "Baja (0)");
+        printf("Nombre        : %s\n", aux.nombre);
+        printf("Descripcion   : %s\n", aux.descripcion);
+        printf("---------------------------------------------------\n");
+    }
+
+    fclose(f);
 }

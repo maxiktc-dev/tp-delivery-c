@@ -13,10 +13,11 @@ typedef struct
 
 typedef struct
 {
-    int id_cliente;
-    int id_telefono;
-    char descripcion[50];
-} TelefonoCliente;
+    int id_restaurante;          // Clave Primaria
+    char nombre[50];
+    char descripcion[150];       // Ej: "Pizzería", "Comida Vegana"
+    int activo;                  // 1 = Activo, 0 = Baja lógica
+} Restaurante;
 
 typedef struct
 {

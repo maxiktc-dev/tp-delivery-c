@@ -3,6 +3,14 @@
 
 #include "estructuras.h"
 
+
+void listarRestaurantesDebug();
+int guardarRestaurante(Restaurante r);
+int buscarRestaurantePorID(int id);
+int modificarRestaurante(int id, char nuevoNombre[], char nuevaDescripcion[]);
+int bajaRestaurante(int id);
+void gestionRestaurantes();
+
 //--- ABM DE CLIENTES ---
 void gestionClientes();
 

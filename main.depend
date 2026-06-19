@@ -57,18 +57,18 @@
 	"filemanager.h"
 	"estructuras.h"
 
-1781837902 source:c:\users\coto\desktop\proyecto progra\tp-delivery-c\crud.c
+1781841735 source:c:\users\coto\desktop\proyecto progra\tp-delivery-c\crud.c
 	<stdio.h>
 	<string.h>
 	<ctype.h>
-	"crud.h"
 	"estructuras.h"
+	"crud.h"
 	"filemanager.h"
 
-1781838490 c:\users\coto\desktop\proyecto progra\tp-delivery-c\crud.h
+1781841066 c:\users\coto\desktop\proyecto progra\tp-delivery-c\crud.h
 	"estructuras.h"
 
-1781832442 c:\users\coto\desktop\proyecto progra\tp-delivery-c\estructuras.h
+1781841066 c:\users\coto\desktop\proyecto progra\tp-delivery-c\estructuras.h
 
 1781827798 c:\users\coto\desktop\proyecto progra\tp-delivery-c\filemanager.h
 	<stdio.h>
@@ -77,13 +77,13 @@
 1781827798 source:c:\users\coto\desktop\proyecto progra\tp-delivery-c\filemanager.c
 	"filemanager.h"
 
-1781838490 source:c:\users\coto\desktop\proyecto progra\tp-delivery-c\main.c
+1781841478 source:c:\users\coto\desktop\proyecto progra\tp-delivery-c\main.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
 	<conio.h>
 	<stdbool.h>
+	"estructuras.h"
 	"crud.h"
 	"filemanager.h"
-	"estructuras.h"
 
