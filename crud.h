@@ -3,7 +3,9 @@
 
 #include "estructuras.h"
 
-// --- ABM DE PLATOS (PRODUCTOS) ---
+// ==========================================
+// --- 1. ABM DE PLATOS (PRODUCTOS) ---
+// ==========================================
 void gestionPlatos();
 void menuAltaProducto(int id_rest);
 void menuModificarProducto(int id_rest);
@@ -13,46 +15,41 @@ int guardarProducto(Producto p);
 int modificarProducto(int id_restaurante, int id_producto, char nuevoNombre[], float nuevoPrecio);
 int bajaProducto(int id_restaurante, int id_producto);
 
-// --- ABM DE RESTAURANTES ---
+// ==========================================
+// --- 2. ABM DE RESTAURANTES ---
+// ==========================================
 void gestionRestaurantes();
+void pantallaAltaRestaurante();
+void pantallaModificacionRestaurante();
+void pantallaBajaRestaurante();
 void listarRestaurantesDebug();
 int guardarRestaurante(Restaurante r);
 int buscarRestaurantePorID(int id);
 int modificarRestaurante(int id, char nuevoNombre[], char nuevaDescripcion[]);
 int bajaRestaurante(int id);
 
-//--- ABM DE CLIENTES ---
+// ==========================================
+// --- 3. ABM Y VALIDACIONES DE CLIENTES ---
+// ==========================================
 void gestionClientes();
-
 void pantallaAltaCliente();
-
 void pantallaModificarCliente();
-
 void pantallaBajaCliente();
-
-int validarNombre(char nombre[]);
-
-int validarEmail(char email[]);
-
-int modificarCliente(int id, char nuevaDireccion[], char nuevaContrasenia[]);
-
-int bajaCliente(int id);
-
-int buscarClientePorID(int id);
-
-int guardarCliente(Cliente u);
-
-int altaCliente(Cliente nuevo);
-
 void listarClientes();
-
+void listarClientesDebug();
+int validarNombre(char nombre[]);
+int validarEmail(char email[]);
+int modificarCliente(int id, char nuevaDireccion[], char nuevaContrasenia[]);
+int bajaCliente(int id);
+int buscarClientePorID(int id);
+int guardarCliente(Cliente u);
+int altaCliente(Cliente nuevo);
 int validarCliente(Cliente u);
-
 int idDisponible(int id);
 
-void listarClientesDebug();
-//--- ABM DE PEDIDOS ---
-
+// ==========================================
+// --- 4. ABM DE PEDIDOS ---
+// ==========================================
 int altaPedido(PedidoCliente nuevoPedido, ProductosPedido detalles[], int cantidadProductos);
-#endif
- // CRUD_H_INCLUDED
+
+#endif // CRUD_H
