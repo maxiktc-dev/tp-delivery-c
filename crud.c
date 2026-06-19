@@ -370,6 +370,64 @@ int bajaProducto(int id_restaurante, int id_producto)
 // --- ABM Y LÓGICA DE RESTAURANTES ---
 // ==========================================
 
+int checkEstadoRestauranteGlobal(int id) {
+    FILE *f = abrirArchivo("restaurantes.dat", "rb");
+    if(f == NULL) return 0;
+
+    Restaurante aux;
+    while(leerRegistro(f, &aux, sizeof(Restaurante))) {
+        if(aux.id_restaurante == id) {
+            fclose(f);
+            return aux.activo == 1 ? 1 : 2;
+        }
+    }
+    fclose(f);
+    return 0; // El ID está libre
+}
+
+int reactivarRestauranteSimple(int id) {
+    FILE *f = abrirArchivo("restaurantes.dat", "rb+");
+    if(f == NULL) return 0;
+
+    Restaurante aux;
+    int reactivado = 0;
+
+    while(leerRegistro(f, &aux, sizeof(Restaurante))) {
+        if(aux.id_restaurante == id && aux.activo == 0) {
+            aux.activo = 1; // Lo revivimos
+
+            fseek(f, -(long)sizeof(Restaurante), SEEK_CUR);
+            reactivado = escribirRegistro(f, &aux, sizeof(Restaurante));
+            break;
+        }
+    }
+    fclose(f);
+    return reactivado;
+}
+
+void pantallaReactivarRestaurante() {
+    int id_buscado;
+
+    printf("\n--- REACTIVAR RESTAURANTE ---\n");
+    printf("Ingrese el ID del restaurante a reactivar: ");
+    scanf("%d", &id_buscado);
+    getchar();
+
+    int estado = checkEstadoRestauranteGlobal(id_buscado);
+
+    if(estado == 0) {
+        printf("Error: Ese ID nunca fue registrado.\n");
+    } else if(estado == 1) {
+        printf("Aviso: El restaurante ya se encuentra ACTIVO.\n");
+    } else {
+        if(reactivarRestauranteSimple(id_buscado) == 1) {
+            printf("¡Restaurante reactivado con exito! Vuelve a aparecer en la app.\n");
+        } else {
+            printf("Error al intentar reactivar el restaurante.\n");
+        }
+    }
+}
+
 void pantallaAltaRestaurante()
 {
     Restaurante r;
@@ -503,6 +561,7 @@ void gestionRestaurantes()
         printf("1. Alta de Restaurante\n");
         printf("2. Modificar Restaurante\n");
         printf("3. Baja de Restaurante\n");
+        printf("4. Reactivar Restaurante\n");
         printf("0. Volver al menu principal\n");
         printf("Opcion ABM: ");
         scanf("%d", &opcABM);
@@ -518,6 +577,9 @@ void gestionRestaurantes()
             break;
         case 3:
             pantallaBajaRestaurante();
+            break;
+        case 4:
+            pantallaReactivarRestaurante();
             break;
         case 0:
             printf("Volviendo...\n");
@@ -607,6 +669,64 @@ int bajaRestaurante(int id)
 // ==========================================
 // --- 1. ABM Y LÓGICA DE CLIENTES ---
 // ==========================================
+
+int checkEstadoClienteGlobal(int id) {
+    FILE *f = abrirArchivo("clientes.dat", "rb");
+    if(f == NULL) return 0;
+
+    Cliente aux;
+    while(leerRegistro(f, &aux, sizeof(Cliente))) {
+        if(aux.id_cliente == id) {
+            fclose(f);
+            return aux.activo == 1 ? 1 : 2;
+        }
+    }
+    fclose(f);
+    return 0; // El ID está libre
+}
+
+int reactivarClienteSimple(int id) {
+    FILE *f = abrirArchivo("clientes.dat", "rb+");
+    if(f == NULL) return 0;
+
+    Cliente aux;
+    int reactivado = 0;
+
+    while(leerRegistro(f, &aux, sizeof(Cliente))) {
+        if(aux.id_cliente == id && aux.activo == 0) {
+            aux.activo = 1; // Lo revivimos
+
+            fseek(f, -(long)sizeof(Cliente), SEEK_CUR);
+            reactivado = escribirRegistro(f, &aux, sizeof(Cliente));
+            break;
+        }
+    }
+    fclose(f);
+    return reactivado;
+}
+
+void pantallaReactivarCliente() {
+    int id_buscado;
+
+    printf("\n--- REACTIVAR CUENTA DE CLIENTE ---\n");
+    printf("Ingrese el ID del cliente a reactivar: ");
+    scanf("%d", &id_buscado);
+    getchar();
+
+    int estado = checkEstadoClienteGlobal(id_buscado);
+
+    if(estado == 0) {
+        printf("Error: Ese ID nunca fue registrado.\n");
+    } else if(estado == 1) {
+        printf("Aviso: El cliente ya se encuentra ACTIVO.\n");
+    } else {
+        if(reactivarClienteSimple(id_buscado) == 1) {
+            printf("¡Cliente reactivado con exito! La cuenta vuelve a estar operativa.\n");
+        } else {
+            printf("Error al intentar reactivar el cliente.\n");
+        }
+    }
+}
 
 void pantallaAltaCliente()
 {
@@ -759,6 +879,7 @@ void gestionClientes()
         printf("1. Alta de Cliente\n");
         printf("2. Modificar Cliente\n");
         printf("3. Baja de Cliente\n");
+        printf("4. Reactivar Cliente\n");
         printf("0. Volver al menu principal\n");
         printf("Opcion ABM: ");
         scanf("%d", &opcABM);
@@ -774,6 +895,9 @@ void gestionClientes()
             break;
         case 3:
             pantallaBajaCliente();
+            break;
+        case 4:
+            pantallaReactivarCliente();
             break;
         case 0:
             printf("Volviendo...\n");

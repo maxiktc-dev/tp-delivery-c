@@ -22,6 +22,9 @@ int reactivarProductoSimple(int id_restaurante, int id_producto);
 // ==========================================
 // --- 2. ABM DE RESTAURANTES ---
 // ==========================================
+int checkEstadoRestauranteGlobal(int id);
+int reactivarRestauranteSimple(int id);
+void pantallaReactivarRestaurante();
 void gestionRestaurantes();
 void pantallaAltaRestaurante();
 void pantallaModificacionRestaurante();
@@ -35,6 +38,9 @@ int bajaRestaurante(int id);
 // ==========================================
 // --- 3. ABM Y VALIDACIONES DE CLIENTES ---
 // ==========================================
+int checkEstadoClienteGlobal(int id);
+int reactivarClienteSimple(int id);
+void pantallaReactivarCliente();
 void gestionClientes();
 void pantallaAltaCliente();
 void pantallaModificarCliente();
