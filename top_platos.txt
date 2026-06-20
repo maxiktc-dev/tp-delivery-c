@@ -1,0 +1,5 @@
+===================================================
+         RANKING TOP 5 - PLATOS MAS PEDIDOS
+         Fecha del analisis: 2026-06-19 23:47:25
+===================================================
+Puesto N1 -> ID Plato: 67 	 Unidades Vendidas: 12

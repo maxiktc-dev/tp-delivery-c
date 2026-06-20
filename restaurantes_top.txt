@@ -1,0 +1,8 @@
+===================================================
+   RESTAURANTES TOP (CALIFICACION > 4.0)
+   Fecha de emision: 2026-06-19 23:46:27
+===================================================
+ID	Nombre			Calificacion	Rubro
+---------------------------------------------------
+100	Plaza Pizza         	5.0 / 5.0		Pizzeria
+11	Pizzeria Pinoccios  	5.0 / 5.0		Parri¤¤a
