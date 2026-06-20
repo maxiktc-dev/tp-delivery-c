@@ -36,27 +36,30 @@
 	<stdio.h>
 	<stdlib.h>
 
-1781850358 source:c:\users\maxi\desktop\rappi-ya\main\crud.c
+1781919706 source:c:\users\maxi\desktop\rappi-ya\main\crud.c
 	<stdio.h>
+	<stdlib.h>
 	<string.h>
 	<ctype.h>
+	<time.h>
 	"estructuras.h"
 	"crud.h"
 	"filemanager.h"
+	"informes.h"
 
-1781850303 c:\users\maxi\desktop\rappi-ya\main\crud.h
+1781916243 c:\users\maxi\desktop\rappi-ya\main\crud.h
 	"estructuras.h"
 
-1781842205 c:\users\maxi\desktop\rappi-ya\main\estructuras.h
+1781897668 c:\users\maxi\desktop\rappi-ya\main\estructuras.h
 
-1781846573 source:c:\users\maxi\desktop\rappi-ya\main\main.c
+1781919259 source:c:\users\maxi\desktop\rappi-ya\main\main.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
-	<stdbool.h>
 	"estructuras.h"
 	"crud.h"
 	"filemanager.h"
+	"informes.h"
 
 1781889085 source:c:\users\coto\desktop\proyecto progra\tp-delivery-c\crud.c
 	<stdio.h>
@@ -96,5 +99,15 @@
 	"informes.h"
 
 1781887456 c:\users\coto\desktop\proyecto progra\tp-delivery-c\informes.h
+	"estructuras.h"
+
+1781919992 source:c:\users\maxi\desktop\rappi-ya\main\informes.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<time.h>
+	"informes.h"
+
+1781919573 c:\users\maxi\desktop\rappi-ya\main\informes.h
 	"estructuras.h"
 

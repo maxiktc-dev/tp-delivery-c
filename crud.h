@@ -49,6 +49,7 @@ int reactivarYModificarProducto(Producto p);
 void listarProductosDebug();
 
 // --- CATEGORÍA 4: PEDIDOS ---
+int obtenerNuevoIdPedido();
 void pantallaAltaPedidoCliente(int id_logueado);
 void pantallaListarPedidosUnicoCliente(int id_logueado);
 void gestionPedidosRestoEspecifico(int id_rest);
@@ -62,5 +63,8 @@ int validarTelefono(char telefono[]);
 int validarNombre(char nombre[]);
 int validarEmail(char email[]);
 int validarFecha(char fecha[]);
+
+// --- CATEGORÍA 6: ADMINISTRADORES DE PLATAFORMA ---
+void sesionAdministrador();
 
 #endif // CRUD_H
