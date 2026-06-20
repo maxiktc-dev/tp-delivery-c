@@ -975,24 +975,17 @@ int obtenerNuevoIdPedido()
 }
 
 int altaPedido(PedidoCliente nuevoPedido, ProductosPedido detalles[], int cantidadProductos) {
-    // 1. Grabar Pedido
     FILE *f = fopen("pedidos.dat", "ab");
     if(f == NULL) return 0;
-    fwrite(&nuevoPedido, sizeof(PedidoCliente), 1, f); // Asegurate de usar fwrite directo
+    fwrite(&nuevoPedido, sizeof(PedidoCliente), 1, f);
     fclose(f);
 
-    // 2. Grabar Detalles
     FILE *fd = fopen("detalles_pedido.dat", "ab");
     if(fd != NULL) {
         for(int i = 0; i < cantidadProductos; i++) {
-            // Asignar ID nuevo individualmente por cada ítem
             detalles[i].id_detalle = generarIdDetalleAutoincremental();
             detalles[i].id_pedido = nuevoPedido.id_pedido;
-
-            // DEBUG: ¿Qué estamos grabando realmente?
-            printf("DEBUG ALTA: Grabando Detalle %d | Pedido %d | Prod %d | Cant %d\n",
-                    detalles[i].id_detalle, detalles[i].id_pedido, detalles[i].id_producto, detalles[i].cantidad);
-
+            detalles[i].id_usuario_restaurante = nuevoPedido.id_usuario_restaurante; // <--- ASIGNAR AQUÍ
             fwrite(&detalles[i], sizeof(ProductosPedido), 1, fd);
         }
         fclose(fd);

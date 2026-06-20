@@ -1,0 +1,4 @@
+=== RANKING DE PLATOS MAS VENDIDOS - LOCAL 11 ===
+Puesto   | ID Plato   | Vendidos   | Nombre del Plato    
+--------------------------------------------------------------------
+1        | 67         | 12         | Tira de asado       

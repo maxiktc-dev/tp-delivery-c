@@ -36,7 +36,7 @@
 	<stdio.h>
 	<stdlib.h>
 
-1781919706 source:c:\users\maxi\desktop\rappi-ya\main\crud.c
+1781920967 source:c:\users\maxi\desktop\rappi-ya\main\crud.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -50,7 +50,7 @@
 1781916243 c:\users\maxi\desktop\rappi-ya\main\crud.h
 	"estructuras.h"
 
-1781897668 c:\users\maxi\desktop\rappi-ya\main\estructuras.h
+1781920967 c:\users\maxi\desktop\rappi-ya\main\estructuras.h
 
 1781919259 source:c:\users\maxi\desktop\rappi-ya\main\main.c
 	<stdlib.h>
@@ -108,6 +108,6 @@
 	<time.h>
 	"informes.h"
 
-1781919573 c:\users\maxi\desktop\rappi-ya\main\informes.h
+1781921239 c:\users\maxi\desktop\rappi-ya\main\informes.h
 	"estructuras.h"
 

@@ -63,44 +63,77 @@ int obtenerRestoDelProducto(int id_prod) {
 
 void informePlatosMasVendidosLocal(int id_rest) {
     FILE *fDet = fopen("detalles_pedido.dat", "rb");
-    if(!fDet) { printf("No hay detalles de pedidos.\n"); return; }
+    if(!fDet) {
+        printf("No hay registros de ventas para analizar.\n");
+        return;
+    }
 
-    typedef struct { int id_p; int cant; } ContadorPlato;
-    ContadorPlato listado[500];
-    int totalPlatosDiferentes = 0;
-    memset(listado, 0, sizeof(listado));
+    typedef struct { int id_p; int cant; } Contador;
+    Contador ranking[500];
+    int totalP = 0;
+
+    // Inicializar
+    for(int i=0; i<500; i++) { ranking[i].id_p = 0; ranking[i].cant = 0; }
 
     ProductosPedido d;
+    int ventasEncontradas = 0;
+
+    // 1. Recolección de datos
     while(fread(&d, sizeof(ProductosPedido), 1, fDet) == 1) {
-        // Usamos la auxiliar para ver si este producto es de este restaurante
-        if(obtenerRestoDelProducto(d.id_producto) == id_rest) {
-            int encontrado = 0;
-            for(int i = 0; i < totalPlatosDiferentes; i++) {
-                if(listado[i].id_p == d.id_producto) {
-                    listado[i].cant += d.cantidad;
-                    encontrado = 1;
+        if(d.id_usuario_restaurante == id_rest) {
+            ventasEncontradas = 1;
+            int pos = -1;
+            for(int i = 0; i < totalP; i++) {
+                if(ranking[i].id_p == d.id_producto) {
+                    pos = i;
                     break;
                 }
             }
-            if(!encontrado && totalPlatosDiferentes < 500) {
-                listado[totalPlatosDiferentes].id_p = d.id_producto;
-                listado[totalPlatosDiferentes].cant = d.cantidad;
-                totalPlatosDiferentes++;
+            if(pos != -1) {
+                ranking[pos].cant += d.cantidad;
+            } else if(totalP < 500) {
+                ranking[totalP].id_p = d.id_producto;
+                ranking[totalP].cant = d.cantidad;
+                totalP++;
             }
         }
     }
     fclose(fDet);
 
-    // Si sigue dando 0, es que el ID de producto en detalles_pedido.dat
-    // no coincide con el de productos.dat
-    if(totalPlatosDiferentes == 0) {
-        printf("DEBUG: No se encontraron ventas para el resto %d. Revisa los IDs en detalles_pedido.dat\n", id_rest);
+    if(!ventasEncontradas) {
+        printf("No se encontraron pedidos registrados para este local.\n");
         return;
     }
 
-    // Ordenar y guardar... (Tu lógica de Bubble Sort es correcta, dejala igual)
-    // ...
-    printf("¡Ranking generado con éxito!\n");
+    // 2. BUBBLE SORT (Ordenamos por cantidad de mayor a menor)
+    for(int i = 0; i < totalP - 1; i++) {
+        for(int j = 0; j < totalP - i - 1; j++) {
+            if(ranking[j].cant < ranking[j+1].cant) {
+                Contador temp = ranking[j];
+                ranking[j] = ranking[j+1];
+                ranking[j+1] = temp;
+            }
+        }
+    }
+
+    // 3. Generación del reporte con Puesto, ID y Nombre
+    char nombreArchivo[50];
+    sprintf(nombreArchivo, "ranking_platos_%d.txt", id_rest);
+    FILE *fTxt = fopen(nombreArchivo, "w");
+
+    fprintf(fTxt, "=== RANKING DE PLATOS MAS VENDIDOS - LOCAL %d ===\n", id_rest);
+    fprintf(fTxt, "%-8s | %-10s | %-10s | %-20s\n", "Puesto", "ID Plato", "Vendidos", "Nombre del Plato");
+    fprintf(fTxt, "--------------------------------------------------------------------\n");
+
+    char nombreAux[50];
+    for(int i = 0; i < totalP; i++) {
+        obtenerNombrePlato(ranking[i].id_p, nombreAux);
+        // Aquí incluimos i + 1 para que muestre el puesto empezando en 1
+        fprintf(fTxt, "%-8d | %-10d | %-10d | %-20s\n", i + 1, ranking[i].id_p, ranking[i].cant, nombreAux);
+    }
+
+    fclose(fTxt);
+    printf("Reporte generado exitosamente en '%s'.\n", nombreArchivo);
 }
 
 // Función interna para obtener la fecha y hora formateada en los reportes
@@ -308,4 +341,19 @@ void generarInformesTxt()
             default: printf("Opcion invalida.\n");
         }
     } while(opc != 0);
+}
+
+void obtenerNombrePlato(int id_prod, char *nombreDestino) {
+    FILE *f = fopen("productos.dat", "rb");
+    strcpy(nombreDestino, "Desconocido"); // Valor por defecto
+    if(f) {
+        Producto p;
+        while(fread(&p, sizeof(Producto), 1, f) == 1) {
+            if(p.id_producto == id_prod) {
+                strcpy(nombreDestino, p.nombre);
+                break;
+            }
+        }
+        fclose(f);
+    }
 }

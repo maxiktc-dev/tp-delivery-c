@@ -49,6 +49,7 @@ typedef struct
 
 typedef struct
 {
+    int id_usuario_restaurante;
     int id_detalle;
     int id_pedido;
     int id_producto;

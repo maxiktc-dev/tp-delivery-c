@@ -8,5 +8,5 @@ void portalReportesRestaurante(int id_rest);
 void informesRestauranteLocal(int id_rest);
 // Función contenedora del menú de listados en texto
 void generarInformesTxt();
-
+void obtenerNombrePlato(int id_prod, char *nombreDestino);
 #endif // INFORMES_H
