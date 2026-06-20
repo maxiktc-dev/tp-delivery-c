@@ -6,6 +6,7 @@
 #include "filemanager.h"
 #include "informes.h"
 
+
 void sesionCliente()
 {
     int id_clie;

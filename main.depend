@@ -61,19 +61,21 @@
 	"filemanager.h"
 	"informes.h"
 
-1781889085 source:c:\users\coto\desktop\proyecto progra\tp-delivery-c\crud.c
+1781973598 source:c:\users\coto\desktop\proyecto progra\tp-delivery-c\crud.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 	<ctype.h>
+	<time.h>
 	"estructuras.h"
 	"crud.h"
 	"filemanager.h"
+	"informes.h"
 
-1781889085 c:\users\coto\desktop\proyecto progra\tp-delivery-c\crud.h
+1781924299 c:\users\coto\desktop\proyecto progra\tp-delivery-c\crud.h
 	"estructuras.h"
 
-1781889085 c:\users\coto\desktop\proyecto progra\tp-delivery-c\estructuras.h
+1781924299 c:\users\coto\desktop\proyecto progra\tp-delivery-c\estructuras.h
 
 1781827798 c:\users\coto\desktop\proyecto progra\tp-delivery-c\filemanager.h
 	<stdio.h>
@@ -82,7 +84,7 @@
 1781827798 source:c:\users\coto\desktop\proyecto progra\tp-delivery-c\filemanager.c
 	"filemanager.h"
 
-1781900078 source:c:\users\coto\desktop\proyecto progra\tp-delivery-c\main.c
+1781976199 source:c:\users\coto\desktop\proyecto progra\tp-delivery-c\main.c
 	<stdlib.h>
 	<stdio.h>
 	<string.h>
@@ -91,14 +93,14 @@
 	"filemanager.h"
 	"informes.h"
 
-1781889589 source:c:\users\coto\desktop\proyecto progra\tp-delivery-c\informes.c
+1781924299 source:c:\users\coto\desktop\proyecto progra\tp-delivery-c\informes.c
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
 	<time.h>
 	"informes.h"
 
-1781887456 c:\users\coto\desktop\proyecto progra\tp-delivery-c\informes.h
+1781975943 c:\users\coto\desktop\proyecto progra\tp-delivery-c\informes.h
 	"estructuras.h"
 
 1781921438 source:c:\users\maxi\desktop\rappi-ya\main\informes.c

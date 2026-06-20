@@ -2,7 +2,59 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "estructuras.h"
 #include "informes.h"
+
+// Función interna para obtener la fecha y hora formateada en los reportes
+void obtenerFechaHoraActual(char* buffer) {
+    time_t t = time(NULL);
+    struct tm *tm_info = localtime(&t);
+    strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+}
+
+void obtenerNombrePlato(int id_prod, char *nombreDestino) {
+    FILE *f = fopen("productos.dat", "rb");
+    strcpy(nombreDestino, "Desconocido");
+    if(f) {
+        Producto p;
+        while(fread(&p, sizeof(Producto), 1, f) == 1) {
+            if(p.id_producto == id_prod) {
+                strcpy(nombreDestino, p.nombre);
+                break;
+            }
+        }
+        fclose(f);
+    }
+}
+
+void obtenerNombreRestaurante(int id_resto, char *nombreDestino) {
+    FILE *f = fopen("restaurantes.dat", "rb");
+    strcpy(nombreDestino, "Desconocido");
+    if(f) {
+        Restaurante r;
+        while(fread(&r, sizeof(Restaurante), 1, f) == 1) {
+            if(r.id_restaurante == id_resto) {
+                strcpy(nombreDestino, r.nombre);
+                break;
+            }
+        }
+        fclose(f);
+    }
+}
+
+int obtenerRestoDelProducto(int id_prod) {
+    FILE *fProd = fopen("productos.dat", "rb");
+    if(!fProd) return -1;
+    Producto p;
+    while(fread(&p, sizeof(Producto), 1, fProd) == 1) {
+        if(p.id_producto == id_prod) {
+            fclose(fProd);
+            return p.id_usuario_restaurante;
+        }
+    }
+    fclose(fProd);
+    return -1;
+}
 
 void portalReportesRestaurante(int id_rest) {
     int opc;
@@ -17,7 +69,7 @@ void portalReportesRestaurante(int id_rest) {
         switch(opc) {
             case 1: informesRestauranteLocal(id_rest); break;
             case 2: informePlatosMasVendidosLocal(id_rest); break;
-            default: printf("Opcion invalida.\n");
+            default: if(opc != 0) printf("Opcion invalida.\n");
         }
     } while(opc != 0);
 }
@@ -47,20 +99,6 @@ void informesRestauranteLocal(int id_rest) {
     printf("Informe generado: %d pedidos exportados a '%s'\n", cont, nombreArchivo);
 }
 
-int obtenerRestoDelProducto(int id_prod) {
-    FILE *fProd = fopen("productos.dat", "rb");
-    if(!fProd) return -1;
-    Producto p;
-    while(fread(&p, sizeof(Producto), 1, fProd) == 1) {
-        if(p.id_producto == id_prod) {
-            fclose(fProd);
-            return p.id_usuario_restaurante;
-        }
-    }
-    fclose(fProd);
-    return -1; // No encontrado
-}
-
 void informePlatosMasVendidosLocal(int id_rest) {
     FILE *fDet = fopen("detalles_pedido.dat", "rb");
     if(!fDet) {
@@ -72,13 +110,11 @@ void informePlatosMasVendidosLocal(int id_rest) {
     Contador ranking[500];
     int totalP = 0;
 
-    // Inicializar
     for(int i=0; i<500; i++) { ranking[i].id_p = 0; ranking[i].cant = 0; }
 
     ProductosPedido d;
     int ventasEncontradas = 0;
 
-    // 1. Recolección de datos
     while(fread(&d, sizeof(ProductosPedido), 1, fDet) == 1) {
         if(d.id_usuario_restaurante == id_rest) {
             ventasEncontradas = 1;
@@ -105,7 +141,6 @@ void informePlatosMasVendidosLocal(int id_rest) {
         return;
     }
 
-    // 2. BUBBLE SORT (Ordenamos por cantidad de mayor a menor)
     for(int i = 0; i < totalP - 1; i++) {
         for(int j = 0; j < totalP - i - 1; j++) {
             if(ranking[j].cant < ranking[j+1].cant) {
@@ -116,7 +151,6 @@ void informePlatosMasVendidosLocal(int id_rest) {
         }
     }
 
-    // 3. Generación del reporte con Puesto, ID y Nombre
     char nombreArchivo[50];
     sprintf(nombreArchivo, "ranking_platos_%d.txt", id_rest);
     FILE *fTxt = fopen(nombreArchivo, "w");
@@ -128,19 +162,11 @@ void informePlatosMasVendidosLocal(int id_rest) {
     char nombreAux[50];
     for(int i = 0; i < totalP; i++) {
         obtenerNombrePlato(ranking[i].id_p, nombreAux);
-        // Aquí incluimos i + 1 para que muestre el puesto empezando en 1
         fprintf(fTxt, "%-8d | %-10d | %-10d | %-20s\n", i + 1, ranking[i].id_p, ranking[i].cant, nombreAux);
     }
 
     fclose(fTxt);
     printf("Reporte generado exitosamente en '%s'.\n", nombreArchivo);
-}
-
-// Función interna para obtener la fecha y hora formateada en los reportes
-void obtenerFechaHoraActual(char* buffer) {
-    time_t t = time(NULL);
-    struct tm *tm_info = localtime(&t);
-    strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
 }
 
 void informeRestaurantesTop() {
@@ -214,7 +240,6 @@ void informeTopPlatos() {
     FILE *fDet = fopen("detalles_pedido.dat", "rb");
     if(fDet == NULL) { printf("No hay datos de consumos.\n"); return; }
 
-    // Estructura interna auxiliar para agrupar acumulados sin reventar memoria
     typedef struct { int id_p; int cant; } ContadorPlato;
     ContadorPlato listado[500];
     int totalPlatosDiferentes = 0;
@@ -236,7 +261,6 @@ void informeTopPlatos() {
     }
     fclose(fDet);
 
-    // Bubble Sort para ordenar el ranking de mayor a menor consumo
     for(int i = 0; i < totalPlatosDiferentes - 1; i++) {
         for(int j = 0; j < totalPlatosDiferentes - i - 1; j++) {
             if(listado[j].cant < listado[j+1].cant) {
@@ -253,15 +277,27 @@ void informeTopPlatos() {
     char timestamp[30];
     obtenerFechaHoraActual(timestamp);
 
-    fprintf(fTxt, "===================================================\n");
-    fprintf(fTxt, "         RANKING TOP 5 - PLATOS MAS PEDIDOS\n");
-    fprintf(fTxt, "         Fecha del analisis: %s\n", timestamp);
-    fprintf(fTxt, "===================================================\n");
+    fprintf(fTxt, "========================================================================================\n");
+    fprintf(fTxt, "                             RANKING TOP 5 - PLATOS MAS PEDIDOS\n");
+    fprintf(fTxt, "                             Fecha del analisis: %s\n", timestamp);
+    fprintf(fTxt, "========================================================================================\n");
+    fprintf(fTxt, "%-10s | %-25s | %-25s | %-15s\n", "Puesto", "Nombre del Plato", "Restaurante", "Unid. Vendidas");
+    fprintf(fTxt, "----------------------------------------------------------------------------------------\n");
 
-    int limite = totalPlatosDiferentes < 55 ? totalPlatosDiferentes : 5;
+    int limite = totalPlatosDiferentes < 5 ? totalPlatosDiferentes : 5;
+    char nombrePlatoAux[50];
+    char nombreRestoAux[50];
+
     for(int i = 0; i < limite; i++) {
-        fprintf(fTxt, "Puesto N%d -> ID Plato: %d \t Unidades Vendidas: %d\n", i+1, listado[i].id_p, listado[i].cant);
+        obtenerNombrePlato(listado[i].id_p, nombrePlatoAux);
+        int id_resto_dueno = obtenerRestoDelProducto(listado[i].id_p);
+        obtenerNombreRestaurante(id_resto_dueno, nombreRestoAux);
+
+        fprintf(fTxt, "Puesto N%-3d | %-25s | %-25s | %-15d\n",
+                i + 1, nombrePlatoAux, nombreRestoAux, listado[i].cant);
     }
+
+    fprintf(fTxt, "========================================================================================\n");
     fclose(fTxt);
     printf("¡Ranking de consumo guardado con exito en 'top_platos.txt'!\n");
 }
@@ -282,7 +318,7 @@ void informeFacturaPedido() {
     }
     fclose(fPed);
 
-    if(!encontrado) { printf("Error: El pedido no existe.\n"); return; }
+   if(!encontrado) { printf("Error: El pedido no existe.\n"); return; }
 
     char nombreArchivo[50];
     sprintf(nombreArchivo, "factura_%d.txt", id_ticket);
@@ -341,19 +377,4 @@ void generarInformesTxt()
             default: printf("Opcion invalida.\n");
         }
     } while(opc != 0);
-}
-
-void obtenerNombrePlato(int id_prod, char *nombreDestino) {
-    FILE *f = fopen("productos.dat", "rb");
-    strcpy(nombreDestino, "Desconocido"); // Valor por defecto
-    if(f) {
-        Producto p;
-        while(fread(&p, sizeof(Producto), 1, f) == 1) {
-            if(p.id_producto == id_prod) {
-                strcpy(nombreDestino, p.nombre);
-                break;
-            }
-        }
-        fclose(f);
-    }
 }

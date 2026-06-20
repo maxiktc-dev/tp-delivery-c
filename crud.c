@@ -85,7 +85,7 @@ int checkEstadoProductoGlobal(int id_restaurante, int id_producto)
         if(aux.id_usuario_restaurante == id_restaurante && aux.id_producto == id_producto)
         {
             fclose(f);
-            return aux.activo == 1 ? 1 : 2;
+            return aux.activo == 1 ? 1 : 2;  //si el registro está activo devuelve 1 (Alta), sino devuelve 2 (Baja Lógica)
         }
     }
     fclose(f);
@@ -131,8 +131,8 @@ int reactivarYModificarProducto(Producto p)
     {
         if(aux.id_usuario_restaurante == p.id_usuario_restaurante && aux.id_producto == p.id_producto)
         {
-            fseek(f, -(long)sizeof(Producto), SEEK_CUR);
-            exito = escribirRegistro(f, &p, sizeof(Producto));
+            fseek(f, -(long)sizeof(Producto), SEEK_CUR); // fseek negativo con SEEK_CUR: retrocede el puntero del archivo los bytes exactos
+            exito = escribirRegistro(f, &p, sizeof(Producto));   // del struct para posicionarse al inicio del registro leído y poder sobrescribirlo.
             break;
         }
     }
@@ -510,7 +510,7 @@ void pantallaAltaRestaurante()
         printf("ID Restaurante: ");
         scanf("%d", &auxENTERO);
         getchar();
-        invalido = checkEstadoRestauranteGlobal(auxENTERO) == 1;
+        invalido = checkEstadoRestauranteGlobal(auxENTERO) == 1 |checkEstadoRestauranteGlobal(auxENTERO) == 2;
         if(invalido) puts("Ese ID ya existe, ingrese otro!");
     }
     while(invalido);

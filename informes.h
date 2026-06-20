@@ -2,6 +2,8 @@
 #define INFORMES_H
 
 #include "estructuras.h"
+
+void obtenerNombreRestaurante(int id_resto, char *nombreDestino);
 int obtenerRestoDelProducto(int id_prod);
 void informePlatosMasVendidosLocal(int id_rest);
 void portalReportesRestaurante(int id_rest);
